@@ -207,9 +207,9 @@ Everything is orchestrated via a single `Makefile`, configured by individual `*.
 
 ---
 
-### Configuration (`[fastq.gz.specific_1].conf`)
+### Configuration (`[fastq.gz.specific].conf`)
 
-All parameters live in a single `[fastq.gz.specific_1].conf`.  Key variables include:
+All parameters live in a single `[fastq.gz.specific].conf`.  Key variables include:
 
 - `INPUT_FASTQ` – path to input directory (`fastq/`) with raw sequence files
 - `REF_GENOME` – path to reference directory (`refs/`) with reference sequence files
@@ -222,7 +222,7 @@ All parameters live in a single `[fastq.gz.specific_1].conf`.  Key variables inc
 - `start_site` - specifies the `start_site` nucleotide sequence
 - `end_site` - specifies the `end_site` nucleotide sequence
 
-You can duplicate `[fastq.gz.specific_1].conf` for multiple libraries.
+You can duplicate `[fastq.gz.specific].conf` for multiple libraries.
 
 ---
 
@@ -240,9 +240,9 @@ You can duplicate `[fastq.gz.specific_1].conf` for multiple libraries.
 
 - `extract_top_align_reads_minimap` – `extract_top_align_reads.py` → Extract top aligned reads from MiniMap2
 
-- `all` – run all targets in sequential order for a specific `[fastq.gz.specific_1].conf` dataset
+- `all` – run all targets in sequential order for a specific `[fastq.gz.specific].conf` dataset
 
-- `all_samples` – run all targets in sequential order for all `[fastq.gz.specific_X].conf` datasets
+- `all_samples` – run all targets in sequential order for all `[fastq.gz.specific].conf` datasets
 
 **OPTIONAL**
 
@@ -267,7 +267,7 @@ python scripts/trim_fasta.py refs/lib1536_gene_full_with_504.fasta refs/lib1536_
 
 ### Extending & Troubleshooting
 
-- Modify or clone `*.conf` file for new libraries
+- Modify or clone `[fastq.gz.specific].conf` file for new libraries
 - Edit `Makefile` if you add new scripts or targets
 - Rebuild Docker image (`Dockerfile`) if you change dependencies
 - Inspect `logs/` for errors or exceptions
