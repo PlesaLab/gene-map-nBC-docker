@@ -3,7 +3,7 @@
 docker build --no-cache \
   --build-arg USER_ID=$(id -u) \
   --build-arg GROUP_ID=$(id -g) \
-  -t newenv:latest .
+  -t seqanalysis:latest .
 ```
 
 # To start the interactive shell
@@ -11,13 +11,13 @@ docker build --no-cache \
 docker run --rm -it \
   -v "$(pwd)":/workspace \
   -w /workspace \
-  newenv:latest \
+  seqanalysis:latest \
   bash
 ```
 
 # Add the following alias to the .zshrc shell to activate `newenv` from any directory:
 ```bash
-alias newenv='docker run --rm -it -v $(pwd):/workspace -w /workspace newenv:latest'
+alias seqanalysis='docker run --rm -it -v $(pwd):/workspace -w /workspace seqanalysis:latest'
 ```
 
 # To run the Makefile
