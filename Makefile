@@ -24,15 +24,9 @@ PYTHON := python
 BBMAP := bbmap.sh
 SAMTOOLS := samtools
 MINIMAP := minimap2
-STARCODE := starcode
 
 # Define Python scripts
 BC_PROCESSING := $(SCRIPT_DIR)/barcode_processing.py
-STARCODE_COMBINE := $(SCRIPT_DIR)/starcode_combine.py
-ADD_CONSENSUS_SCRIPT := $(SCRIPT_DIR)/add_consensus_bc.py
-SORT_CONSENSUS_SCRIPT := $(SCRIPT_DIR)/sort_consensus_bc.py
-CONSENSUS_GENE_SCRIPT := $(SCRIPT_DIR)/get_consensus_gene.py
-ALT_TRANS_SCRIPT := $(SCRIPT_DIR)/process_alt_trans.py
 SAM_PARSE_SCRIPT := $(SCRIPT_DIR)/parse_sam_script.py
 EXTRACT_ALIGN_READS_SCRIPT := $(SCRIPT_DIR)/extract_top_align_reads.py
 
@@ -54,7 +48,7 @@ all_samples:
 # Only require CONF for targets other than 'all_samples'
 ifneq ($(MAKECMDGOALS),all_samples)
   ifndef CONF
-    $(error Set CONF. Usage: make CONF=DNGXRH_1_L71.1.conf all)
+    $(error Set CONF. Usage: make CONF=R8FRST_1_384-1x.conf all)
   endif
 
   CONFIG_PATH := $(CONFIG_DIR)/$(CONF)
@@ -80,24 +74,6 @@ PROCESSED_BC_FILES := \
 # The processed FASTA output
 PROCESSED_FASTA := $(OUTPUT_DIR)/$(FILEBASE).fasta
 
-# What Starcode should read and write
-STARCODE_INPUT  := $(OUTPUT_DIR)/$(FILEBASE).bc_stats_for_starcode.tsv
-STARCODE_OUTPUT := $(OUTPUT_DIR)/$(FILEBASE).barcodes.collapse_d1.tsv
-
-# The output of add_consensus_bc.py
-ADD_CONSENSUS_OUTPUT := $(OUTPUT_DIR)/$(FILEBASE).merged.consensus_bc.fasta
-
-# The output of sort_consensus_bc.py
-SORTED_CONSENSUS_OUTPUT := $(OUTPUT_DIR)/$(FILEBASE).merged.consensus_bc.sorted.fasta
-
-# The output of get_consensus_gene.py
-#CONSENSUS_GENE_FASTA := $(OUTPUT_DIR)/$(FILEBASE).consensus_gene.fasta
-CONSENSUS_GENE_FASTA := $(OUTPUT_DIR)/$(FILEBASE).fasta
-CONSENSUS_SCORES := $(OUTPUT_DIR)/$(FILEBASE).consensus_scores.txt
-
-# The output of process_alt_trans.py
-ALT_TRANS_OUTPUT := $(OUTPUT_DIR)/$(FILEBASE).merged.sorted_noN_aa.csv
-
 # The output of bbmap.sh
 BBMAP_OUTPUT := $(OUTPUT_DIR)/$(FILEBASE).bbmap.merged.sorted.map.sam
 BBMAP_UNALIGNED := $(OUTPUT_DIR)/$(FILEBASE).bbmap.merged.sorted.map.unaligned.sam
@@ -116,13 +92,6 @@ PARSE_SAM_MINIMAP_OUTPUT2 := $(OUTPUT_DIR)/$(FILEBASE).C5seqs_mutID_info_all.csv
 .SECONDARY: \
 $(PROCESSED_BC_FILES) \
 $(PROCESSED_FASTA) \
-$(STARCODE_INPUT) \
-$(STARCODE_OUTPUT) \
-$(ADD_CONSENSUS_OUTPUT) \
-$(SORTED_CONSENSUS_OUTPUT) \
-$(CONSENSUS_GENE_FASTA) \
-$(CONSENSUS_SCORES) \
-$(ALT_TRANS_OUTPUT) \
 $(BBMAP_OUTPUT) \
 $(BBMAP_UNALIGNED) \
 $(MINIMAP_OUTPUT) \
@@ -135,10 +104,15 @@ $(PARSE_SAM_MINIMAP_OUTPUT2)
 #========================================================================
 # Primary targets
 all: prepare process_barcodes run_bbmap run_minimap extract_top_align_reads_bbmap extract_top_align_reads_minimap
-#all: prepare process_barcodes run_starcode add_consensus_bc sort_consensus_bc consensus_gene process_alt_trans run_bbmap run_minimap parse_sam_bbmap parse_sam_minimap extract_top_align_reads_bbmap extract_top_align_reads_minimap
+
+# Optional targets (add to all:)
+# parse_sam_bbmap parse_sam_minimap
 
 # Declare phony targets
-.PHONY: all prepare process_barcodes run_starcode add_consensus_bc sort_consensus_bc consensus_gene process_alt_trans run_bbmap run_minimap parse_sam_bbmap parse_sam_minimap extract_top_align_reads_bbmap extract_top_align_reads_minimap
+.PHONY: all prepare process_barcodes run_bbmap run_minimap extract_top_align_reads_bbmap extract_top_align_reads_minimap
+
+# Optional phony targets (add to .PHONY:)
+# parse_sam_bbmap parse_sam_minimap
 
 # Use secondary expansion for pattern rules
 .SECONDEXPANSION:
@@ -168,49 +142,7 @@ process_barcodes: prepare
 	@echo "Barcode processing complete." \
 	  | tee -a $(LOG_DIR)/$(FILEBASE).bc_processing.log
 
-# STEP 3: Run Starcode to cluster barcodes
-run_starcode: process_barcodes
-	echo "Running Starcode for clustering barcodes"
-	$(STARCODE) -d1 --sphere --print-clusters \
-	  -i $(STARCODE_INPUT) \
-	  --output $(STARCODE_OUTPUT)
-	echo "Starcode clustering complete."
-
-# STEP 4: Add consensus barcode
-add_consensus_bc: run_starcode
-	echo "Adding consensus barcode"
-	$(PYTHON) $(ADD_CONSENSUS_SCRIPT) \
-    -i $(PROCESSED_FASTA) \
-    -c $(STARCODE_OUTPUT) \
-    -o $(ADD_CONSENSUS_OUTPUT)
-	echo "Consensus barcode addition complete."
-
-# STEP 5: Sort consensus barcode file
-sort_consensus_bc: add_consensus_bc
-	echo "Sorting consensus barcode file..."
-	$(PYTHON) $(SORT_CONSENSUS_SCRIPT) \
-	-i $(ADD_CONSENSUS_OUTPUT) \
-	-o $(SORTED_CONSENSUS_OUTPUT)
-	echo "Sorting complete."
-
-# STEP 6: Call consensus gene
-consensus_gene: sort_consensus_bc
-	echo "Calling consensus gene using get_consensus_gene.py"
-	$(PYTHON) $(CONSENSUS_GENE_SCRIPT) \
-	-i $(SORTED_CONSENSUS_OUTPUT) \
-	-o $(CONSENSUS_GENE_FASTA) \
-	-s $(CONSENSUS_SCORES)
-	echo "Consensus gene calling complete."
-
-# STEP 7: Process alternative transcripts
-process_alt_trans: consensus_gene
-	echo "Processing alternative transcripts"
-	$(PYTHON) $(ALT_TRANS_SCRIPT) \
-	$(CONSENSUS_GENE_FASTA) \
-	$(ALT_TRANS_OUTPUT)
-	echo "Alternative transcript processing completed."
-
-# STEP 8: Run BBMap
+# STEP 3: Run BBMap
 run_bbmap: process_barcodes
 	@echo "Running BBMap" | tee -a $(LOG_DIR)/$(FILEBASE).bbmap.log
 	@$(BBMAP) ref=$(REF_GENOME) \
@@ -220,7 +152,7 @@ run_bbmap: process_barcodes
 	  2>&1 | tee -a $(LOG_DIR)/$(FILEBASE).bbmap.log
 	@echo "BBMap completed." | tee -a $(LOG_DIR)/$(FILEBASE).bbmap.log
 
-# STEP 9: Run MiniMap
+# STEP 4: Run MiniMap
 run_minimap: process_barcodes
 	@echo "Running MiniMap" | tee -a $(LOG_DIR)/$(FILEBASE).minimap.log
 	@$(MINIMAP) -ax map-ont \
@@ -238,7 +170,7 @@ run_minimap: process_barcodes
 	} 2>&1 | tee -a $(LOG_DIR)/$(FILEBASE).minimap.log
 	@echo "minimap2 completed." | tee -a $(LOG_DIR)/$(FILEBASE).minimap.log
 
-# STEP 10: Parse SAM files from BBMap
+# OPTIONAL: Parse SAM files from BBMap
 parse_sam_bbmap: run_bbmap
 	@if [ -n "$(PROTEIN_FASTA)" ] && [ -f "$(PROTEIN_FASTA)" ]; then \
 	  echo "Parsing BBMap SAM alignments" | tee -a $(LOG_DIR)/$(FILEBASE).parse_sam_bbmap.log; \
@@ -254,7 +186,7 @@ parse_sam_bbmap: run_bbmap
 	  echo "Skipping BBMap SAM parsing — no valid PROTEIN_FASTA defined." | tee -a $(LOG_DIR)/$(FILEBASE).parse_sam_bbmap.log; \
 	fi
 
-# STEP 11: Parse SAM files from MiniMap
+# OPTIONAL: Parse SAM files from MiniMap
 parse_sam_minimap: run_minimap
 	@if [ -n "$(PROTEIN_FASTA)" ] && [ -f "$(PROTEIN_FASTA)" ]; then \
 	  echo "Parsing MiniMap SAM alignments" | tee -a $(LOG_DIR)/$(FILEBASE).parse_sam_minimap.log; \
@@ -270,7 +202,7 @@ parse_sam_minimap: run_minimap
 	  echo "Skipping MiniMap SAM parsing — no valid PROTEIN_FASTA defined." | tee -a $(LOG_DIR)/$(FILEBASE).parse_sam_minimap.log; \
 	fi
 
-# STEP 12: Extract top aligned reads (from BBMap)
+# STEP 5: Extract top aligned reads (from BBMap)
 extract_top_align_reads_bbmap: run_bbmap
 	@echo "Extracting top aligned reads from BBMap" \
 	  | tee -a $(LOG_DIR)/$(FILEBASE).extract_top_align_reads_bbmap.log
@@ -282,7 +214,7 @@ extract_top_align_reads_bbmap: run_bbmap
 	  -t 4 \
 	  2>&1 | tee -a $(LOG_DIR)/$(FILEBASE).extract_top_align_reads_bbmap.log
 
-# STEP 13: Extract top aligned reads (from MiniMap)
+# STEP 6: Extract top aligned reads (from MiniMap)
 extract_top_align_reads_minimap: run_minimap
 	@echo "Extracting top aligned reads from MiniMap" \
 	  | tee -a $(LOG_DIR)/$(FILEBASE).extract_top_align_reads_minimap.log
