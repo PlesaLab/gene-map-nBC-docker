@@ -1,0 +1,7 @@
+# ignore runtime artifacts
+out/
+logs/
+fastq/
+.vscode/
+.DS_Store
+scripts/.DS_Store
