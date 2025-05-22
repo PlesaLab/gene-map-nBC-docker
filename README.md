@@ -28,7 +28,7 @@ cd gene-map-nBC-docker
 ### 2. Build the Docker Image
 
 > [!NOTE]
-> Ensure [Docker Desktop](https://www.docker.com/products/docker-desktop/) is running in the background
+> Ensure [Docker Desktop](https://www.docker.com/products/docker-desktop/) is running in the background (and set default memory to max)
 
 ```bash
 docker build --no-cache --build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g) --platform=linux/amd64 -t seqanalysis:latest .
@@ -165,8 +165,7 @@ exit
 ## PART II: DropSynth Oligo-Generation Pipeline
 
 > [!Warning]
-> This software is still in beta - some features have not been exhaustively tested.
-> Use at your own risk.
+> This pipeline is still in beta - some features have not been exhaustively tested.
 
 ### Overview
 
@@ -186,21 +185,21 @@ Everything is orchestrated via a single `Makefile`, configured by individual `*.
 ### Repository Layout
 
 ```bash
-├── Dockerfile				← default docker settings
-├── seqanalysis.yml 	← default environment file
-├── Makefile				  ← default Makefile targets
-├── config 			      ← default parameter files
+├── Dockerfile        ← default docker settings
+├── seqanalysis.yml   ← default environment file
+├── Makefile          ← default Makefile targets
+├── config            ← default parameter files
 │ ├── [fastq.gz.specific_1].conf
 │ ├── [fastq.gz.specific_2].conf
 │ ├── [fastq.gz.specific_3].conf
-├── fastq/ 				    ← .fastq.gz-formatted raw sequence inputs
+├── fastq/            ← .fastq.gz-formatted raw sequence inputs
 │ ├── [fastq.gz.specific_1].fastq.gz
 │ ├── [fastq.gz.specific_2].fastq.gz
 │ ├── [fastq.gz.specific_3].fastq.gz
-├── refs/ 				    ← .fasta or .genes-formatted reference sequences
+├── refs/             ← .fasta or .genes-formatted reference sequences
 │ ├── lib[]_gene_full_wo_504.fasta
 │ ├── custom[]_out_split_Lib[].full_nRE_nPrim.genes
-├── scripts/ 				  ← necessary .py scripts
+├── scripts/          ← necessary .py scripts
 │ ├── trim_fasta.py
 │ ├── barcode_processing.py
 │ ├── extract_top_align_reads.py
