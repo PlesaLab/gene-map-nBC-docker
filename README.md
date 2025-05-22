@@ -188,7 +188,7 @@ Everything is orchestrated via a single `Makefile`, configured by individual `*.
 ├── Dockerfile                    ← default docker settings
 ├── seqanalysis.yml               ← default environment file
 ├── Makefile                      ← default Makefile targets
-├── config                        ← default parameter files
+├── config                        ← default configuration files
 │ ├── [fastq.gz.specific_1].conf
 │ ├── [fastq.gz.specific_2].conf
 │ ├── [fastq.gz.specific_3].conf
@@ -207,32 +207,47 @@ Everything is orchestrated via a single `Makefile`, configured by individual `*.
 
 ---
 
-### Configuration (`Library.conf`)
+### Configuration (`[fastq.gz.specific_1].conf`)
 
-All parameters live in a single `Library.conf`.  Key variables include:
+All parameters live in a single `[fastq.gz.specific_1].conf`.  Key variables include:
 
-- `codon_usage_file` – path to a JSON or CSV of codon frequencies  
-- `input_type` – `AA` or `DNA`  
-- `input_file` – source FASTA/Excel filename  
-- `num_oligos` – target oligos per gene  
-- cloning sites – `cloning_fwd`, `cloning_rev`, etc.  
-- enzyme rules – `REsites_file` pointing at your CSV of restriction enzymes  
-- `div_lib_size`, `number_of_libs` – how to chunk split genes into sub‑libraries  
-- buffer settings – `padding_var`, `padding_length`, etc.  
-- homopolymer thresholds, primer files, barcode sets, etc.
+- `INPUT_FASTQ` – path to input directory (`fastq/`) with raw sequence files
+- `REF_GENOME` – path to reference directory (`refs/`) with reference sequence files
+- `PROTEIN_FASTA` – path to reference directory (`refs/`) with reference protein files
+    - (default: blank)
+- `startsitelength` – number of base pairs in start site sequence 
+- `barcode_length` – number of random nucleotides to add as barcodes to raw sequences
+- `motif` – specifies the `startsite` sequence, `bc`, `endsite` sequence, and allowable errors
+    - ((start_site)(barcode}(end_site)){e<2>}
+- `start_site` - specifies the `start_site` nucleotide sequence
+- `end_site` - specifies the `end_site` nucleotide sequence
 
-You can duplicate or override `Library.conf` for multiple libraries.
+You can duplicate `[fastq.gz.specific_1].conf` for multiple libraries.
 
 ---
 
+### Makefile Targets (`Makefile`)
 
+- `prepare` – create log and output directories
 
+- `process_barcodes` – `barcode_processing.py` → Extract BCs from input fastq.gz file
 
+- `run_bbmap` – `bbmap.sh` → Align and map extracted sequences to reference sequences (BBMap)
 
+- `run_minimap` – `minimap2` → Align and map extracted sequences to reference sequences (MiniMap2)
 
+- `extract_top_align_reads_bbmap` – `extract_top_align_reads.py` → Extract top aligned reads from BBMap
 
+- `extract_top_align_reads_minimap` – `extract_top_align_reads.py` → Extract top aligned reads from MiniMap2
 
-# Trim 504 primers from reference sequences (384 & 1536)
+- `all` – run all targets in sequential order for a specific `[fastq.gz.specific_1].conf` dataset
+
+- `all_samples` – run all targets in sequential order for all `[fastq.gz.specific_X].conf` datasets
+
+**OPTIONAL**
+
+- `trim_fasta.py` - standalone python script to remove 504 primers from reference `.fasta` files
+
 ```bash
 # Trim 504 primers from 384 reference
 python scripts/trim_fasta.py refs/lib384_gene_full_with_504.fasta refs/lib384_gene_full_wo_504.fasta
@@ -240,3 +255,26 @@ python scripts/trim_fasta.py refs/lib384_gene_full_with_504.fasta refs/lib384_ge
 # Trim 504 primers from 1536 reference
 python scripts/trim_fasta.py refs/lib1536_gene_full_with_504.fasta refs/lib1536_gene_full_wo_504.fasta
 ```
+
+---
+
+### Logs & Outputs
+
+- **Logs:** each script writes to `logs/<step>.log`
+- **Results:** look under `out/` for subdirectories by step
+
+---
+
+### Extending & Troubleshooting
+
+- Modify or clone `*.conf` file for new libraries
+- Edit `Makefile` if you add new scripts or targets
+- Rebuild Docker image (`Dockerfile`) if you change dependencies
+- Inspect `logs/` for errors or exceptions
+
+---
+
+**Maintainers:**
+ 
+- Karl Romanowicz (karl@synplexity.com)
+- Calin Plesa (calin@synplexity.com)
