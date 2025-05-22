@@ -1,4 +1,4 @@
-# DropSynth Gene Design Pipeline
+# DropSynth Assembled Gene Mapping (no BCs) Pipeline
 
 ## PART I: Setting Up Docker Image for Reproducible Environment
 
