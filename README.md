@@ -185,21 +185,21 @@ Everything is orchestrated via a single `Makefile`, configured by individual `*.
 ### Repository Layout
 
 ```bash
-├── Dockerfile        ← default docker settings
-├── seqanalysis.yml   ← default environment file
-├── Makefile          ← default Makefile targets
-├── config            ← default parameter files
+├── Dockerfile                    ← default docker settings
+├── seqanalysis.yml               ← default environment file
+├── Makefile                      ← default Makefile targets
+├── config                        ← default parameter files
 │ ├── [fastq.gz.specific_1].conf
 │ ├── [fastq.gz.specific_2].conf
 │ ├── [fastq.gz.specific_3].conf
-├── fastq/            ← .fastq.gz-formatted raw sequence inputs
+├── fastq/                        ← .fastq.gz-formatted raw sequences
 │ ├── [fastq.gz.specific_1].fastq.gz
 │ ├── [fastq.gz.specific_2].fastq.gz
 │ ├── [fastq.gz.specific_3].fastq.gz
-├── refs/             ← .fasta or .genes-formatted reference sequences
+├── refs/                         ← .fasta-formatted reference sequences
 │ ├── lib[]_gene_full_wo_504.fasta
 │ ├── custom[]_out_split_Lib[].full_nRE_nPrim.genes
-├── scripts/          ← necessary .py scripts
+├── scripts/                      ← necessary .py scripts
 │ ├── trim_fasta.py
 │ ├── barcode_processing.py
 │ ├── extract_top_align_reads.py
