@@ -208,7 +208,7 @@ extract_top_align_reads_bbmap: run_bbmap
 	  | tee -a $(LOG_DIR)/$(FILEBASE).extract_top_align_reads_bbmap.log
 	@$(PYTHON) $(EXTRACT_ALIGN_READS_SCRIPT) \
 	  -s "$(BBMAP_OUTPUT)" \
-	  -f "$(CONSENSUS_GENE_FASTA)" \
+	  -f "$(PROCESSED_FASTA)" \
 	  -c "$(OUTPUT_DIR)/counts/$(FILEBASE).bbmap.counts.csv" \
 	  -o "$(OUTPUT_DIR)/read_fasta/$(FILEBASE)_bbmap" \
 	  -t 4 \
@@ -220,7 +220,7 @@ extract_top_align_reads_minimap: run_minimap
 	  | tee -a $(LOG_DIR)/$(FILEBASE).extract_top_align_reads_minimap.log
 	@$(PYTHON) $(EXTRACT_ALIGN_READS_SCRIPT) \
 	  -s "$(MINIMAP_OUTPUT)" \
-	  -f "$(CONSENSUS_GENE_FASTA)" \
+	  -f "$(PROCESSED_FASTA)" \
 	  -c "$(OUTPUT_DIR)/counts/$(FILEBASE).minimap.counts.csv" \
 	  -o "$(OUTPUT_DIR)/read_fasta/$(FILEBASE)_minimap" \
 	  -t 4 \

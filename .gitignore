@@ -2,6 +2,7 @@
 out/
 logs/
 fastq/
+ref/
 .vscode/
 .DS_Store
 scripts/.DS_Store
