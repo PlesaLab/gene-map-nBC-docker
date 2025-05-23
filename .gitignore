@@ -7,4 +7,6 @@ ref/genome/
 ref/genome/1/
 .vscode/
 .DS_Store
+.Rhistory
 scripts/.DS_Store
+RMD/

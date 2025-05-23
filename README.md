@@ -28,7 +28,7 @@ cd gene-map-nBC-docker
 ### 2. Build the Docker Image
 
 > [!NOTE]
-> Ensure [Docker Desktop](https://www.docker.com/products/docker-desktop/) is running in the background (and set default memory to max)
+> Ensure [Docker Desktop](https://www.docker.com/products/docker-desktop/) is running in the background (and change default memory to max in Settings)
 
 ```bash
 docker build --no-cache \
@@ -39,6 +39,7 @@ docker build --no-cache \
 ```
 
 - `--no-cache` forces a clean build
+- `--platform=linux/arm64` specifies native architecture for build (***change as needed***)
 - `--build-arg USER_ID` Adds your user id to the image and updates mambauser to make changes to your mounted volume
 - `--build-arg GROUP_ID` Same as above, but adds mambauser to the same group as well
 - `-t newenv:arm64` tages the image for easy reference

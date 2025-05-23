@@ -1,0 +1,418 @@
+---
+title: "Library Mapping (nBC) Stats"
+author: 'Karl Romanowicz'
+output:
+  html_notebook:
+    theme: spacelab
+    toc: yes
+    toc_depth: 5
+    toc_float:
+      collapsed: yes
+      smooth_scroll: yes
+  html_document:
+    toc: yes
+    toc_depth: '5'
+    df_print: paged
+  pdf_document:
+    toc: yes
+    toc_depth: '5'
+editor_options: 
+  chunk_output_type: inline
+---
+
+**GitHub Repository:** [https://github.com/SynPlexity/gene-map-nBC-docker](https://github.com/SynPlexity/gene-map-nBC-docker)
+
+# Experiment
+
+<font color="blue">This pipeline evaluates the mapping results from</font> <font color="red">`gene-map-nBC-docker`.</font> <font color="blue">Sequence data were generated using the Oxford Nanopore platform.</font>
+
+```{css}
+.badCode {
+background-color: lightpink;
+font-weight: bold;
+}
+
+.goodCode {
+background-color: lightgreen;
+font-weight: bold;
+}
+
+table {
+  margin: auto;
+  border-top: 1px solid #666;
+  border-bottom: 1px solid #666;
+}
+table thead th { border-bottom: 1px solid #ddd; }
+th, td { padding: 5px; }
+thead, tfoot, tr:nth-child(even) { background: #eee; }
+```
+
+```{r setup, include=FALSE}
+# Set global options for notebook
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = TRUE, message = TRUE)
+knitr::opts_chunk$set(echo = TRUE, class.source = "bg-success")
+
+# Getting the path of your current open file and set as wd
+current_path = rstudioapi::getActiveDocumentContext()$path 
+setwd(dirname(current_path))
+print(getwd())
+```
+
+# Packages
+The following R packages must be installed prior to loading into the R session. See the **Reproducibility** tab for a complete list of packages and their versions used in this workflow.
+```{r message=FALSE, results='hide', warning=FALSE}
+library(dplyr)
+library(readr)
+library(stringi)
+library(stringr)
+library(tidyverse)
+library('seqinr')
+library(profvis)
+library("stringdist")
+library(gglorenz)
+library(ineq)
+```
+
+```{r include=FALSE}
+# set.seed is used to fix the random number generation to make the results repeatable
+set.seed(123)
+```
+
+Establish a link to the SAM processing R code
+```{r}
+source("scripts/1_SAM_read.R")
+```
+
+# Load Data
+<font color="blue">**This section is based on the R file: "Name_of_File.R".**</font> It describes how to load all of the <font color="red">pre-existing barcode mapping</font> data necessary for downstream analysis.
+
+## Reference Data
+
+```{r}
+# Import reference fasta
+
+# 384 Reference
+target_genes1 = read.fasta("refs/lib384_gene_full_wo_504.fasta",
+                           seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
+
+# 1536 Reference
+# target_genes1 = read.fasta("refs/lib1536_gene_full_wo_504.fasta",
+#                            seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
+
+# Birch Reference
+# target_genes1 = read.fasta("refs/Birch_3_out_split_Lib1.full_nRE_nPrim.genes", seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
+
+
+# Reformat as data frame
+target_genes1 <- as.data.frame(do.call(rbind, target_genes1))
+target_genes1 <- dplyr::rename(target_genes1, "dna"="V1")
+target_genes1$pid <- rownames(target_genes1) #add protein IDs as column
+row.names(target_genes1) <- NULL
+```
+
+```{r}
+# Capitalize DNA sequence
+target_genes1 <- target_genes1 %>%
+  mutate(
+    trimmed_dna = str_to_upper(dna)
+  )
+```
+
+```{r}
+# Calculate lengths
+dna_lengths <- nchar(target_genes1$dna)
+trimmed_dna_lengths <- nchar(target_genes1$trimmed_dna)
+
+# dna stats
+cat("DNA Lengths:\n")
+cat("Range: ", range(dna_lengths), "\n")
+cat("Mean: ", mean(dna_lengths), "\n")
+cat("Median: ", median(dna_lengths), "\n\n")
+
+# trimmed_dna stats
+cat("Trimmed DNA Lengths:\n")
+cat("Range: ", range(trimmed_dna_lengths), "\n")
+cat("Mean: ", mean(trimmed_dna_lengths), "\n")
+cat("Median: ", median(trimmed_dna_lengths), "\n")
+```
+
+## Raw Data
+
+```{r}
+#load raw sequencing data
+
+# 384 - 1x Beads
+raw1 = read.fasta("out/R8FRST_1_384-1x.fasta", seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
+
+# 384 - 2x Beads
+# raw1 = read.fasta("out/R8FRST_2_384-2x.fasta", seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
+
+# 1536
+# raw1 = read.fasta("out/R8FRST_3_1536.fasta", seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
+
+# # Birch (Latest Assembly)
+# raw1 = read.fasta("out/R8FRST_4_L1-Slow.fasta", seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
+
+# Birch (Original Assembly)
+# raw1 = read.fasta("out/TDRTT3_1_sample_1.fasta", seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
+
+
+# Reformat as data frame
+raw1 <- as.data.frame(do.call(rbind, raw1))
+raw1 <- dplyr::rename(raw1, "dna"="V1")
+raw1$dna <- toupper(raw1$dna)
+raw1$bc <- rownames(raw1) #add dna IDs as column
+row.names(raw1) <- NULL
+
+raw1 <- raw1 %>%
+  mutate(ntlen=nchar(dna))
+```
+
+```{r}
+# Calculate sequence lengths from the dna column
+dna_lengths <- nchar(raw1$dna)
+
+# Summary statistics for dna lengths
+cat("DNA Lengths:\n")
+cat("Range: ", range(dna_lengths), "\n")
+cat("Mean: ", mean(dna_lengths), "\n")
+cat("Median: ", median(dna_lengths), "\n\n")
+
+# Summary statistics for ntlen
+cat("ntlen Values:\n")
+cat("Range: ", range(raw1$ntlen), "\n")
+cat("Mean: ", mean(raw1$ntlen), "\n")
+cat("Median: ", median(raw1$ntlen), "\n")
+```
+
+```{r}
+# Pull out the sequence "ntlen" and "count" values for each length
+raw1_gp <- raw1 %>%
+  group_by(ntlen) %>%
+  summarize(count=n())
+```
+
+```{r}
+# Plot histogram
+ggplot(raw1, aes(x = ntlen)) +
+  geom_histogram(binwidth = 5, fill = "blue", alpha = 0.7, color = "black") +
+  xlim(100,600)+
+  labs(title = "Sequence Length Distribution",
+       x = "Sequence Length",
+       y = "Frequency") +
+  theme_minimal()
+
+ggsave(file="RMD/plots/R8FRST_1_384-1x_raw_seq_length_histogram.png",
+       dpi=600, width = 8, height = 6, units = "in")
+```
+
+## Perfects
+
+```{r}
+perfects1 <- semi_join(raw1 %>% dplyr::rename(trimmed_dna=dna) ,target_genes1,by="trimmed_dna")
+
+# Row Counts
+row_perfect <- nrow(perfects1)
+row_raw <- nrow(raw1)
+perf_row_frac <- nrow(perfects1)/nrow(raw1)
+
+# Print results
+cat("No. of Perfect Rows:", row_perfect, "\n")
+cat("No. of Raw Data Rows:", row_raw, "\n")
+cat("Fraction of Perfects:", perf_row_frac, "\n")
+
+# Basic summary statistics for the ntlen column
+range_ntlen <- range(perfects1$ntlen, na.rm = TRUE)
+mean_ntlen <- mean(perfects1$ntlen, na.rm = TRUE)
+median_ntlen <- median(perfects1$ntlen, na.rm = TRUE)
+
+# Print results
+cat("Range of ntlen:", range_ntlen[1], "to", range_ntlen[2], "\n")
+cat("Mean ntlen:", mean_ntlen, "\n")
+cat("Median ntlen:", median_ntlen, "\n")
+```
+
+```{r}
+#count number of perfects
+target_genes1 <- perfects1 %>%
+  group_by(trimmed_dna) %>%
+  summarise(perfectcount1dna=n()) %>%
+  right_join(target_genes1,by="trimmed_dna")
+```
+
+```{r}
+#if a pid doesn't have a perfect (i.e., NA), change to 0
+target_genes1$perfectcount1dna[is.na(target_genes1$perfectcount1dna)] <- 0
+```
+
+## BBMap
+
+```{r}
+# Import SAM file from bbmap output
+
+# 384 - 1x Beads
+SAM_listc1 <- read.sam("out/R8FRST_1_384-1x.bbmap.merged.sam")
+
+# 384 - 2x Beads
+# SAM_listc1 <- read.sam("out/R8FRST_2_384-2x.bbmap.merged.sam")
+
+# 1536
+# SAM_listc1 <- read.sam("out/R8FRST_3_1536.bbmap.merged.sam")
+
+# # Birch (latest assembly)
+# SAM_listc1 <- read.sam("out/R8FRST_4_L1-Slow.bbmap.merged.sam")
+
+# Birch (original assembly)
+# SAM_listc1 <- read.sam("out/TDRTT3_1_sample_1.bbmap.merged.sam")
+
+# Convert to dataframe
+aln1 <- SAM_listc1$x
+
+# Remove SAM import to be re-used to import SAM from minimap output later
+rm(SAM_listc1)
+```
+
+```{r}
+# Clean up columns of interest from SAM import
+aln1 <- aln1 %>%
+  select(QNAME, RNAME, POS, MAPQ, CIGAR) %>%
+  mutate(pid=RNAME) %>%
+  filter(!str_detect(QNAME, "_part_"))
+
+# Calculate total reads (tco1) recovered from each pid
+alnsum1 <- aln1 %>%
+  group_by(pid) %>%
+  summarise(tco1=n())
+```
+
+```{r}
+# Add tco1 counts to target_genes1 dataframe based on shared pid
+target_genes1 <- target_genes1 %>%
+  left_join(alnsum1, by="pid")
+```
+
+## Stats
+
+```{r}
+# Calculate percent perfect recovered for each pid
+target_genes1 <- target_genes1 %>%
+  mutate(pperf=perfectcount1dna/tco1*100)
+
+# Filtered dataset retaining only pids with >99 tco1 (total reads per pid)
+target_genes1_100 <- target_genes1 %>%
+  filter(tco1>99)
+```
+
+```{r}
+# 1. Total number of genes
+total_rows <- nrow(target_genes1)
+cat("Total number of genes:", total_rows, "\n")
+
+# 2. Number of genes with at least one perfect read
+nonzero_rows <- sum(target_genes1$perfectcount1dna > 0, na.rm = TRUE)
+cat("Number of perfect genes (perfectcount1dna > 0):", nonzero_rows, "\n")
+
+# 3. Fraction of genes with perfectcount1dna > 0
+fraction_nonzero <- nonzero_rows / total_rows
+cat("Fraction of perfect genes (perfectcount1dna > 0 / total genes):", round(fraction_nonzero, 4), "\n")
+
+# 4. Number of genes with at least 100 reads
+n_100_reads <- nrow(target_genes1_100)
+cat("Number of genes with ≥100 reads:", n_100_reads, "\n")
+
+# 5. Median % perfects among genes with at least 100 reads
+median_pperf <- median(target_genes1_100$pperf, na.rm = TRUE)
+cat("Median % perfects (genes with ≥100 reads):", round(median_pperf, 2), "\n")
+
+# 6. Mean % perfects among genes with at least 100 reads
+mean_pperf <- mean(target_genes1_100$pperf, na.rm = TRUE)
+cat("Mean % perfects (genes with ≥100 reads):", round(mean_pperf, 2), "\n")
+
+# 7. Coverage (% of genes with at least one perfect read)
+coverage_percent <- (nonzero_rows / total_rows) * 100
+cat("Coverage (% genes with perfectcount1dna > 0):", round(coverage_percent, 2), "%\n")
+
+# 8. Gini coefficient for perfectcount1dna (all genes)
+gini_all_perfects <- ineq(as.double(target_genes1$perfectcount1dna), type = "Gini")
+cat("Gini coefficient (perfectcount1dna, all genes):", round(gini_all_perfects, 4), "\n")
+
+# 9. Gini coefficient for perfectcount1dna (only genes with >0 perfects)
+gini_nonzero_perfects <- ineq(as.double(target_genes1 %>% filter(perfectcount1dna > 0) %>% pull(perfectcount1dna)), type = "Gini")
+cat("Gini coefficient (perfectcount1dna > 0):", round(gini_nonzero_perfects, 4), "\n")
+
+# 10. Gini coefficient for total counts (tco1)
+gini_total_counts <- ineq(as.double(target_genes1$tco1), type = "Gini")
+cat("Gini coefficient (tco1, all genes):", round(gini_total_counts, 4), "\n")
+```
+
+```{r}
+ggplot(target_genes1_100, aes(x = pperf)) +
+  geom_histogram(bins = 40, color = "black", fill = "cornflowerblue") +
+  theme_minimal() +
+  #xlim(0,60)+
+  labs(
+    title = "",
+    x = "Percentage Perfects",
+    y = "Count"
+  )
+
+ggsave(file="RMD/plots/R8FRST_1_384-1x_pct_perfect_histogram.png",
+       dpi=600, width = 8, height = 6, units = "in")
+```
+
+```{r}
+# Reorder based on the perfect count of pids (high to low) - For rank plot
+target_genes1 <- target_genes1 %>%
+  arrange(-perfectcount1dna)
+
+#make keys for rank plotting
+target_genes1$perfects.key <- 1:length(target_genes1$perfectcount1dna)
+```
+
+```{r}
+# Reorder based on the total count of pids (high to low) - For rank plot
+target_genes1 <- target_genes1 %>%
+  arrange(-tco1)
+
+#make keys for rank plotting
+target_genes1$tco1.key <- 1:length(target_genes1$perfectcount1dna)
+```
+
+Rank order plot based on perfect counts
+```{r}
+ggplot(target_genes1,aes(y=perfectcount1dna,x=perfects.key)) +
+  geom_point()+
+  ylab("Perfect Reads")+
+  xlab("Rank ordered gene")+
+  theme(legend.position = "none")+
+  scale_y_log10()+
+  theme_minimal()+
+  theme(legend.position = "none")
+
+# Save plot
+ggsave(file="RMD/plots/R8FRST_1_384-1x_rank_order_perfects.png",
+       dpi=600, width = 8, height = 6, units = "in")
+```
+
+Rank order plot based on total counts
+```{r}
+ggplot(target_genes1,aes(y=tco1,x=tco1.key)) +
+  geom_point()+
+  ylab("All Reads")+
+  xlab("Rank ordered gene")+
+  theme(legend.position = "none")+
+  scale_y_log10()+
+  theme_minimal()+
+  theme(legend.position = "none")
+
+ggsave(file="RMD/plots/R8FRST_1_384-1x_rank_order_all.png",
+       dpi=600, width = 8, height = 6, units = "in")
+```
+
+# Reproducibility
+
+The session information is provided for full reproducibility.
+```{r}
+devtools::session_info()
+```
