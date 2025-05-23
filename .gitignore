@@ -3,6 +3,8 @@ out/
 logs/
 fastq/
 ref/
+ref/genome/
+ref/genome/1/
 .vscode/
 .DS_Store
 scripts/.DS_Store
