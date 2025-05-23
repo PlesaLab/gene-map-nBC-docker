@@ -31,13 +31,16 @@ cd gene-map-nBC-docker
 > Ensure [Docker Desktop](https://www.docker.com/products/docker-desktop/) is running in the background (and set default memory to max)
 
 ```bash
-docker build --no-cache --build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g) --platform=linux/amd64 -t seqanalysis:latest .
+docker build --no-cache \
+  --build-arg USER_ID=$(id -u) \
+  --build-arg GROUP_ID=$(id -g) \
+  -t newenv:latest .
 ```
 
 - `--no-cache` forces a clean build
 - `--build-arg USER_ID` Adds your user id to the image and updates mambauser to make changes to your mounted volume
 - `--build-arg GROUP_ID` Same as above, but adds mambauser to the same group as well
-- `-t seqanalysis:latest` tages the image for easy reference
+- `-t newenv:latest` tages the image for easy reference
 
 ---
 
@@ -47,13 +50,13 @@ All code lives under `/workspace` inside the container.
 
 **Option 1:**
 
-To drop into an interactive shell with your `dropsynth-env:latest` image (and have your `dropsynth` conda env auto‑activated), run:
+To drop into an interactive shell with your `newenv:latest` image (and have your `dropsynth` conda env auto‑activated), run:
 
 ```bash
 docker run --rm -it \
   -v "$(pwd)":/workspace \
   -w /workspace \
-  seqanalysis:latest \
+  newenv:latest \
   bash
 ```
 
@@ -65,11 +68,11 @@ docker run --rm -it \
 
 - `-w /workspace`: set the working directory inside the container
 
-- `seqanalysis:latest`: the image you just built
+- `newenv:latest`: the image you just built
 
-- `bash`: start a shell (your `seqanalysis` Conda env will be auto‑activated on launch)
+- `bash`: start a shell (your `newenv` Conda env will be auto‑activated on launch)
 
-Once the `seqanalysis:latest` image is activated, run `make` targets as follows:
+Once the `newenv:latest` image is activated, run `make` targets as follows:
 
 ```bash
 # To run a specific FASTQ sample
@@ -90,8 +93,8 @@ To mount your project directory and run your full workflow on a specific FASTQ, 
 docker run --rm -it \
   -v "$(pwd)":/workspace \
   -w /workspace \
-  seqanalysis:latest \
-  mmake CONF=R8FRST_1_384-1x.conf all
+  newenv:latest \
+  make CONF=R8FRST_1_384-1x.conf all
 ```
 
 **Option 3:**
@@ -102,7 +105,7 @@ To mount your project directory and run your full workflow on all FASTQ samples,
 docker run --rm -it \
   -v "$(pwd)":/workspace \
   -w /workspace \
-  seqanalysis:latest \
+  newenv:latest \
   make all_samples
 ```
 
@@ -115,8 +118,8 @@ Clone, build, and run everything in a single command:
 ```bash
 git clone git@github.com:SynPlexity/gene-map-nBC-docker.git \
   && cd gene-map-nBC-docker \
-  && docker build -t seqanalysis:latest . \
-  && docker run --rm -it -v "$(pwd)":/workspace -w /workspace seqanalysis:latest make all_samples
+  && docker build -t newenv:latest . \
+  && docker run --rm -it -v "$(pwd)":/workspace -w /workspace newenv:latest make all_samples
 ```
 
 ---
@@ -135,7 +138,7 @@ nano ~/.zshrc
 
 2. **Add this line** (you can also include --rm so containers auto‑cleanup on exit):
 ```bash
-alias seqanalysis='docker run --platform=linux/amd64 --rm -it -v $(pwd):/workspace -w /workspace seqanalysis:latest'
+alias newenv='docker run --rm -it -v $(pwd):/workspace -w /workspace newenv:latest'
 ```
 
 3. **Save & exit** (`Ctrl+O`, then `Enter`, then `Ctrl-X`).
@@ -147,7 +150,7 @@ source ~/.zshrc
 
 5. **Now, anywhere inside your project directory you can just run:**
 ```bash
-seqanalysis
+newenv
 ```
 
 6. **With the container running in the `/workspace` directory, run `Make` targets:**
@@ -186,7 +189,7 @@ Everything is orchestrated via a single `Makefile`, configured by individual `*.
 
 ```bash
 ├── Dockerfile                    ← default docker settings
-├── seqanalysis.yml               ← default environment file
+├── newenv.yml                    ← default environment file
 ├── Makefile                      ← default Makefile targets
 ├── config                        ← default configuration files
 │ ├── [fastq.gz.specific_1].conf

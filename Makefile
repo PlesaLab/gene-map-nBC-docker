@@ -155,7 +155,7 @@ run_bbmap: process_barcodes
 # STEP 4: Run MiniMap
 run_minimap: process_barcodes
 	@echo "Running MiniMap" | tee -a $(LOG_DIR)/$(FILEBASE).minimap.log
-	@$(MINIMAP) -ax map-ont \
+	@$(MINIMAP) -ax map-ont --secondary=no \
 	  -o $(MINIMAP_OUTPUT) \
 	  $(REF_GENOME) \
 	  $(PROCESSED_FASTA) \

@@ -1,0 +1,13 @@
+#Summary
+#Generated on	Thu May 22 23:42:45 UTC 2025
+#Version	5
+chroms	1
+bases	230740
+defined	99840
+undefined	130900
+contigs	384
+scaffolds	384
+interpad	300
+source	/workspace/refs/lib384_gene_full_wo_504.fasta
+bytes	121054
+last modified	1747951789724
