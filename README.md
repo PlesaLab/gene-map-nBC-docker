@@ -140,7 +140,7 @@ nano ~/.zshrc
 
 2. **Add this line** (you can also include --rm so containers auto‑cleanup on exit):
 ```bash
-alias newenv='docker run --rm -it -v $(pwd):/workspace -w /workspace newenv:latest'
+alias newenv='docker run --rm -it -v "$(pwd)":/workspace -w /workspace newenv:arm64'
 ```
 
 3. **Save & exit** (`Ctrl+O`, then `Enter`, then `Ctrl-X`).
