@@ -25,10 +25,10 @@ SAMTOOLS := samtools
 MINIMAP  := minimap2
 
 # Python scripts
-BC_PROCESSING           := $(SCRIPT_DIR)/barcode_processing.py
-SPLIT_SCRIPT            := $(SCRIPT_DIR)/split_script.py
-EXTRACT_ALIGN_READS 	:= $(SCRIPT_DIR)/extract_top_align_reads.py
-SAM_PARSE_SCRIPT        := $(SCRIPT_DIR)/parse_sam_script.py
+BC_PROCESSING		:= $(SCRIPT_DIR)/barcode_processing.py
+SPLIT_SCRIPT		:= $(SCRIPT_DIR)/split_script.py
+EXTRACT_ALIGN_READS	:= $(SCRIPT_DIR)/extract_top_align_reads.py
+SAM_PARSE_SCRIPT	:= $(SCRIPT_DIR)/parse_sam_script.py
 
 #========================================================================
 # Load configs per sample
@@ -51,13 +51,13 @@ endif
 
 #========================================================================
 # Define outputs based on INPUT_FASTQ from .conf
-FILEBASE       		:= $(basename $(basename $(notdir $(INPUT_FASTQ))))
-OUTPUT_PREFIX 		:= $(OUTPUT_DIR)/$(FILEBASE)_chunk_
-PROCESSED_FASTA 	:= $(OUTPUT_DIR)/$(FILEBASE).fasta
-BBMAP_OUTPUT    	:= $(OUTPUT_DIR)/$(FILEBASE).bbmap.merged.sam
-BBMAP_UNALIGNED 	:= $(OUTPUT_DIR)/$(FILEBASE).bbmap.merged.unaligned.sam
-MINIMAP_OUTPUT    	:= $(OUTPUT_DIR)/$(FILEBASE).minimap.merged.sam
-MINIMAP_UNALIGNED 	:= $(OUTPUT_DIR)/$(FILEBASE).minimap.merged.unaligned.fastq
+FILEBASE			:= $(basename $(basename $(notdir $(INPUT_FASTQ))))
+OUTPUT_PREFIX		:= $(OUTPUT_DIR)/$(FILEBASE)_chunk_
+PROCESSED_FASTA		:= $(OUTPUT_DIR)/$(FILEBASE).fasta
+BBMAP_OUTPUT		:= $(OUTPUT_DIR)/$(FILEBASE).bbmap.merged.sam
+BBMAP_UNALIGNED		:= $(OUTPUT_DIR)/$(FILEBASE).bbmap.merged.unaligned.sam
+MINIMAP_OUTPUT		:= $(OUTPUT_DIR)/$(FILEBASE).minimap.merged.sam
+MINIMAP_UNALIGNED	:= $(OUTPUT_DIR)/$(FILEBASE).minimap.merged.unaligned.fastq
 
 # Secondary files not deleted
 .SECONDARY: $(PROCESSED_FASTA) $(BBMAP_OUTPUT) $(BBMAP_UNALIGNED) $(MINIMAP_OUTPUT) $(MINIMAP_UNALIGNED)

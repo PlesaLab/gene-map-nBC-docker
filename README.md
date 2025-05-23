@@ -32,15 +32,16 @@ cd gene-map-nBC-docker
 
 ```bash
 docker build --no-cache \
+  --platform=linux/arm64 \
   --build-arg USER_ID=$(id -u) \
   --build-arg GROUP_ID=$(id -g) \
-  -t newenv:latest .
+  -t newenv:arm64 .
 ```
 
 - `--no-cache` forces a clean build
 - `--build-arg USER_ID` Adds your user id to the image and updates mambauser to make changes to your mounted volume
 - `--build-arg GROUP_ID` Same as above, but adds mambauser to the same group as well
-- `-t newenv:latest` tages the image for easy reference
+- `-t newenv:arm64` tages the image for easy reference
 
 ---
 
@@ -56,7 +57,7 @@ To drop into an interactive shell with your `newenv:latest` image (and have your
 docker run --rm -it \
   -v "$(pwd)":/workspace \
   -w /workspace \
-  newenv:latest \
+  newenv:arm64 \
   bash
 ```
 
@@ -225,6 +226,7 @@ All parameters live in a single `[fastq.gz.specific].conf`.  Key variables inclu
     - ((start_site)(barcode}(end_site)){e<2>}
 - `start_site` - specifies the `start_site` nucleotide sequence
 - `end_site` - specifies the `end_site` nucleotide sequence
+- `CHUNK_FASTQ` - specifies if the raw .fastq.gz should be split into 1GB chunks to extract BCs
 
 You can duplicate `[fastq.gz.specific].conf` for multiple libraries.
 
@@ -235,6 +237,10 @@ You can duplicate `[fastq.gz.specific].conf` for multiple libraries.
 - `prepare` – create log and output directories
 
 - `process_barcodes` – `barcode_processing.py` → Extract BCs from input fastq.gz file
+
+    - (OPTIONS) `split_fastq` - `split_script.py` → Split raw `.fastq.gz` into 1GB chunks
+    - (OPTIONS) `process_barcodes_chunks` - `process_barcodes` → Extract BCs from input chunks
+    - (OPTIONS) `merge_fasta` → Merges `chunk.fasta` into `.fasta` for downstream mapping
 
 - `run_bbmap` – `bbmap.sh` → Align and map extracted sequences to reference sequences (BBMap)
 
