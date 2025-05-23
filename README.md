@@ -80,6 +80,7 @@ make CONF=R8FRST_1_384-1x.conf all
 make CONF=R8FRST_2_384-2x.conf all
 make CONF=R8FRST_3_1536.conf all
 make CONF=R8FRST_4_L1-Slow.Birch.conf all
+make CONF=TDRTT3_1_Birch_1.conf all
 
 # To run all FASTQ samples at the same time
 make all_samples
