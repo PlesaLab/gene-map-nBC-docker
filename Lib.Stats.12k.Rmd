@@ -160,11 +160,10 @@ ggplot(target_genes1_length, aes(x = ntlen)) +
 
 # save
 ggsave(filename = "RMD/DNGXRH_1_L71_ref_seq_length_histogram.png",
-  dpi      = 600,
-  width    = 8,
-  height   = 6,
-  units    = "in"
-)
+  dpi = 600, width = 8, height = 6, units = "in")
+
+# ggsave(filename = "RMD/DNGXRH_4_L79_ref_seq_length_histogram.png",
+#   dpi = 600, width = 8, height = 6, units = "in")
 ```
 
 ## Raw Data
@@ -223,8 +222,12 @@ ggplot(raw1, aes(x = ntlen)) +
        y = "Frequency") +
   theme_minimal()
 
+# Save
 ggsave(file="RMD/DNGXRH_1_L71_raw_seq_length_histogram.png",
        dpi=600, width = 8, height = 6, units = "in")
+
+# ggsave(file="RMD/DNGXRH_4_L79_raw_seq_length_histogram.png",
+#        dpi=600, width = 8, height = 6, units = "in")
 ```
 
 ## Perfects
@@ -368,8 +371,12 @@ ggplot(target_genes1_100, aes(x = pperf)) +
     y = "Count"
   )
 
+# Save
 ggsave(file="RMD/DNGXRH_1_L71_pct_perfect_histogram.png",
        dpi=600, width = 8, height = 6, units = "in")
+
+# ggsave(file="RMD/DNGXRH_4_L79_pct_perfect_histogram.png",
+#        dpi=600, width = 8, height = 6, units = "in")
 ```
 
 ```{r}
@@ -402,8 +409,11 @@ ggplot(target_genes1,aes(y=perfectcount1dna,x=perfects.key)) +
   theme(legend.position = "none")
 
 # Save plot
-ggsave(file="RMD/DNGXRH_1_L71_rank_order_perfects.png",
+ggsave(file="RMD/DNGXRH_1_L71_pct_perfect_histogram.png",
        dpi=600, width = 8, height = 6, units = "in")
+
+# ggsave(file="RMD/DNGXRH_4_L79_rank_order_perfects.png",
+#        dpi=600, width = 8, height = 6, units = "in")
 ```
 
 Rank order plot based on total counts
@@ -417,8 +427,12 @@ ggplot(target_genes1,aes(y=tco1,x=tco1.key)) +
   theme_minimal()+
   theme(legend.position = "none")
 
+# Save
 ggsave(file="RMD/DNGXRH_1_L71_rank_order_all.png",
        dpi=600, width = 8, height = 6, units = "in")
+
+# ggsave(file="RMD/DNGXRH_4_L79_rank_order_all.png",
+#        dpi=600, width = 8, height = 6, units = "in")
 ```
 
 # Reproducibility
