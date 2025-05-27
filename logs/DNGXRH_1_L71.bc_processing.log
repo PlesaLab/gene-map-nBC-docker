@@ -1,0 +1,13 @@
+Processing barcodes from /workspace/fastq/DNGXRH_1_L71.1.fastq
+/opt/conda/envs/newenv/lib/python3.12/site-packages/Bio/Seq.py:2879: BiopythonWarning: Partial codon, len(sequence) not a multiple of three. Explicitly trim the sequence or add trailing N before translation. This may become an error in future.
+  warnings.warn(
+5000 total records
+2906 times tried RC out of 5000
+978 reads failed completely out of 5000
+4022 BCs found out of 5000
+145 no start site out of 4022
+2070 no end site out of 3877
+1807 no ambiguous sites out of 1807
+240 no premature stop codons out of 1807
+Wrote: /workspace/out/DNGXRH_1_L71.bc_stats.csv, /workspace/out/DNGXRH_1_L71.bc_stats_for_starcode.tsv, /workspace/out/DNGXRH_1_L71.bc_list.csv, /workspace/out/DNGXRH_1_L71.fasta
+Barcode processing complete.

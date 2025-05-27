@@ -1,7 +1,4 @@
 # ignore runtime artifacts
-out/
-logs/
-fastq/
 ref/
 ref/genome/
 ref/genome/1/
@@ -9,4 +6,3 @@ ref/genome/1/
 .DS_Store
 .Rhistory
 scripts/.DS_Store
-RMD/

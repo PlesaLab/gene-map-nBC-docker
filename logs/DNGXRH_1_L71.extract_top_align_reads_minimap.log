@@ -1,0 +1,14 @@
+Extracting top aligned reads from MiniMap
+Total primary mapped reads: 1689
+Wrote counts → /workspace/out/counts/DNGXRH_1_L71.minimap.counts.csv
+Top 4 refs:
+  A0A1F7QP51|UNREVIEWED|DIHYDROFOLATE (8 reads)
+  A0A0H3GZX6_KLEPH (8 reads)
+  A0A1J4X9U7|UNREVIEWED|DIHYDROFOLATE (5 reads)
+  H5TK91|UNREVIEWED|DIHYDROFOLATE (5 reads)
+Wrote per-ref FASTAs into /workspace/out/read_fasta/DNGXRH_1_L71_minimap:
+  A0A1F7QP51|UNREVIEWED|DIHYDROFOLATE_reads.fasta: 8 seqs
+  A0A0H3GZX6_KLEPH_reads.fasta: 8 seqs
+  A0A1J4X9U7|UNREVIEWED|DIHYDROFOLATE_reads.fasta: 5 seqs
+  H5TK91|UNREVIEWED|DIHYDROFOLATE_reads.fasta: 5 seqs
+Top aligned reads extraction completed.

@@ -1,0 +1,64 @@
+Running BBMap
+java -ea -Xmx7979m -Xms7979m -cp /opt/conda/envs/newenv/opt/bbmap-39.26-0/current/ align2.BBMap build=1 overwrite=true fastareadlen=500 ref=/workspace/refs/dhfr_3_oligos_split_Lib1.full_nRE_nPrim.genes in=/workspace/out/DNGXRH_1_L71.fasta outm=/workspace/out/DNGXRH_1_L71.bbmap.merged.sam outu=/workspace/out/DNGXRH_1_L71.bbmap.merged.unaligned.sam
+Executing align2.BBMap [build=1, overwrite=true, fastareadlen=500, ref=/workspace/refs/dhfr_3_oligos_split_Lib1.full_nRE_nPrim.genes, in=/workspace/out/DNGXRH_1_L71.fasta, outm=/workspace/out/DNGXRH_1_L71.bbmap.merged.sam, outu=/workspace/out/DNGXRH_1_L71.bbmap.merged.unaligned.sam]
+Version 39.26
+
+Retaining first best site only for ambiguous mappings.
+Writing reference.
+Executing dna.FastaToChromArrays2 [/workspace/refs/dhfr_3_oligos_split_Lib1.full_nRE_nPrim.genes, 1, writeinthread=false, genscaffoldinfo=true, retain, waitforwriting=false, gz=true, maxlen=536670912, writechroms=true, minscaf=1, midpad=300, startpad=8000, stoppad=8000, nodisk=false]
+
+Set genScaffoldInfo=true
+Writing chunk 1
+Set genome to 1
+
+Loaded Reference:	0.031 seconds.
+Loading index for chunk 1-1, build 1
+No index available; generating from reference genome: /workspace/ref/index/1/chr1_index_k13_c7_b1.block
+Indexing threads started for block 0-1
+Indexing threads finished for block 0-1
+Generated Index:	1.002 seconds.
+Analyzed Index:   	1.405 seconds.
+Started output stream:	0.023 seconds.
+Started output stream:	0.008 seconds.
+Cleared Memory:    	0.155 seconds.
+Processing reads in single-ended mode.
+Started read stream.
+Started 10 mapping threads.
+Warning: A fasta header with no sequence was encountered (0):
+TTTCTTTCGCCGTGCATCTG
+
+Detecting finished threads: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+
+   ------------------   Results   ------------------   
+
+Genome:                	1
+Key Length:            	13
+Max Indel:             	16000
+Minimum Score Ratio:  	0.56
+Mapping Mode:         	normal
+Reads Used:           	1829	(745722 bases)
+
+Mapping:          	2.164 seconds.
+Reads/sec:       	845.17
+kBases/sec:      	344.59
+
+
+Read 1 data:      	pct reads	num reads 	pct bases	   num bases
+
+mapped:          	 17.4412% 	      319 	 10.3093% 	       76879
+unambiguous:     	 17.3319% 	      317 	 10.3042% 	       76841
+ambiguous:       	  0.1093% 	        2 	  0.0051% 	          38
+low-Q discards:  	  0.0000% 	        0 	  0.0000% 	           0
+
+perfect best site:	  0.0000% 	        0 	  0.0000% 	           0
+semiperfect site:	  0.2734% 	        5 	  0.1247% 	         930
+
+Match Rate:      	      NA 	       NA 	 82.0702% 	       65982
+Error Rate:      	 21.0880% 	      314 	 16.0056% 	       12868
+Sub Rate:        	 20.9537% 	      312 	  6.4107% 	        5154
+Del Rate:        	  9.4694% 	      141 	  4.3758% 	        3518
+Ins Rate:        	 14.9093% 	      222 	  5.2191% 	        4196
+N Rate:          	 21.2223% 	      316 	  1.9242% 	        1547
+
+Total time:     	4.998 seconds.
+BBMap completed.

@@ -1,0 +1,13 @@
+Extracting top aligned reads from BBMap
+Total primary mapped reads: 496
+Wrote counts → /workspace/out/counts/DNGXRH_4_L79.bbmap.counts.csv
+Top 4 refs:
+  2710530931 <unknown description> (8 reads)
+  A0A7Z9H7Y7|UNREVIEWED|DIHYDROFOLATE <unknown description> (7 reads)
+  A0A377IW81|UNREVIEWED|DIHYDROFOLATE <unknown description> (6 reads)
+  2842026846 <unknown description> (4 reads)
+Wrote per-ref FASTAs into /workspace/out/read_fasta/DNGXRH_4_L79_bbmap:
+  2710530931 <unknown description>_reads.fasta: 8 seqs
+  A0A7Z9H7Y7|UNREVIEWED|DIHYDROFOLATE <unknown description>_reads.fasta: 7 seqs
+  A0A377IW81|UNREVIEWED|DIHYDROFOLATE <unknown description>_reads.fasta: 6 seqs
+  2842026846 <unknown description>_reads.fasta: 4 seqs

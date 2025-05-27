@@ -1,0 +1,15 @@
+Running MiniMap
+[M::mm_idx_gen::0.098*0.97] collected minimizers
+[M::mm_idx_gen::0.134*1.43] sorted minimizers
+[M::main::0.135*1.42] loaded/built the index for 12288 target sequence(s)
+[M::mm_mapopt_update::0.145*1.39] mid_occ = 78
+[M::mm_idx_stat] kmer size: 15; skip: 10; is_hpc: 0; #seq: 12288
+[M::mm_idx_stat::0.151*1.38] distinct minimizers: 792734 (87.53% are singletons); average occurrences: 1.384; average spacing: 5.567; total length: 6106407
+[M::worker_pipeline::0.286*1.95] mapped 1807 sequences
+[M::main] Version: 2.29-r1283
+[M::main] CMD: minimap2 -ax map-ont --secondary=no -o /workspace/out/DNGXRH_1_L71.minimap.merged.sam /workspace/refs/dhfr_3_oligos_split_Lib1.full_nRE_nPrim.genes /workspace/out/DNGXRH_1_L71.fasta
+[M::main] Real time: 0.290 sec; CPU: 0.561 sec; Peak RSS: 0.068 GB
+Extracting unmapped reads
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 118 reads
+minimap2 completed.
