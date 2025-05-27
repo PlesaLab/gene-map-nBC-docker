@@ -93,12 +93,12 @@ source("scripts/1_SAM_read.R")
 # Import reference fasta
 
 # L71-12k DHFR Reference
-# target_genes1 = read.fasta("refs/dhfr_3_oligos_split_Lib1.full_nRE_nPrim.genes",
-#                            seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
+target_genes1 = read.fasta("refs/dhfr_3_oligos_split_Lib1.full_nRE_nPrim.genes",
+                           seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
 
 # L79-12k DHFR Reference
-target_genes1 = read.fasta("refs/dhfr_3_oligos_split_Lib1.codon2.full_nRE_nPrim.genes",
-                           seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
+# target_genes1 = read.fasta("refs/dhfr_3_oligos_split_Lib1.codon2.full_nRE_nPrim.genes",
+#                            seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
 
 # Reformat as data frame
 target_genes1 <- as.data.frame(do.call(rbind, target_genes1))
@@ -159,7 +159,7 @@ ggplot(target_genes1_length, aes(x = ntlen)) +
   theme_minimal(base_size = 14)
 
 # save
-ggsave(filename = "RMD/DNGXRH_4_L79_ref_seq_length_histogram.png",
+ggsave(filename = "RMD/DNGXRH_1_L71_ref_seq_length_histogram.png",
   dpi      = 600,
   width    = 8,
   height   = 6,
@@ -173,10 +173,10 @@ ggsave(filename = "RMD/DNGXRH_4_L79_ref_seq_length_histogram.png",
 #load raw sequencing data
 
 # L71-12k DHFR
-# raw1 = read.fasta("out/DNGXRH_1_L71.fasta", seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
+raw1 = read.fasta("out/DNGXRH_1_L71.fasta", seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
 
 # L79-12k DHFR
-raw1 = read.fasta("out/DNGXRH_4_L79.fasta", seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
+# raw1 = read.fasta("out/DNGXRH_4_L79.fasta", seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
 
 # Reformat as data frame
 raw1 <- as.data.frame(do.call(rbind, raw1))
@@ -223,7 +223,7 @@ ggplot(raw1, aes(x = ntlen)) +
        y = "Frequency") +
   theme_minimal()
 
-ggsave(file="RMD/DNGXRH_4_L79_raw_seq_length_histogram.png",
+ggsave(file="RMD/DNGXRH_1_L71_raw_seq_length_histogram.png",
        dpi=600, width = 8, height = 6, units = "in")
 ```
 
@@ -272,10 +272,10 @@ target_genes1$perfectcount1dna[is.na(target_genes1$perfectcount1dna)] <- 0
 # Import SAM file from bbmap output
 
 # L71-12k DHFR
-# SAM_listc1 <- read.sam("out/DNGXRH_1_L71.bbmap.merged.sam")
+SAM_listc1 <- read.sam("out/DNGXRH_1_L71.bbmap.merged.sam")
 
 # L79-12k DHFR
-SAM_listc1 <- read.sam("out/DNGXRH_4_L79.bbmap.merged.sam")
+# SAM_listc1 <- read.sam("out/DNGXRH_4_L79.bbmap.merged.sam")
 
 # Convert to dataframe
 aln1 <- SAM_listc1$x
@@ -368,7 +368,7 @@ ggplot(target_genes1_100, aes(x = pperf)) +
     y = "Count"
   )
 
-ggsave(file="RMD/DNGXRH_4_L79_pct_perfect_histogram.png",
+ggsave(file="RMD/DNGXRH_1_L71_pct_perfect_histogram.png",
        dpi=600, width = 8, height = 6, units = "in")
 ```
 
@@ -402,7 +402,7 @@ ggplot(target_genes1,aes(y=perfectcount1dna,x=perfects.key)) +
   theme(legend.position = "none")
 
 # Save plot
-ggsave(file="RMD/DNGXRH_4_L79_rank_order_perfects.png",
+ggsave(file="RMD/DNGXRH_1_L71_rank_order_perfects.png",
        dpi=600, width = 8, height = 6, units = "in")
 ```
 
@@ -417,7 +417,7 @@ ggplot(target_genes1,aes(y=tco1,x=tco1.key)) +
   theme_minimal()+
   theme(legend.position = "none")
 
-ggsave(file="RMD/DNGXRH_4_L79_rank_order_all.png",
+ggsave(file="RMD/DNGXRH_1_L71_rank_order_all.png",
        dpi=600, width = 8, height = 6, units = "in")
 ```
 
