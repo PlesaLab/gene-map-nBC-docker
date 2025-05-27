@@ -92,17 +92,13 @@ source("scripts/1_SAM_read.R")
 ```{r}
 # Import reference fasta
 
-# 384 Reference
-target_genes1 = read.fasta("refs/lib384_gene_full_wo_504.fasta",
+# L71-12k DHFR Reference
+target_genes1 = read.fasta("refs/dhfr_3_oligos_split_Lib1.full_nRE_nPrim.genes",
                            seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
 
-# 1536 Reference
-# target_genes1 = read.fasta("refs/lib1536_gene_full_wo_504.fasta",
+# L79-12k DHFR Reference
+# target_genes1 = read.fasta("refs/dhfr_3_oligos_split_Lib1.codon2.full_nRE_nPrim.genes",
 #                            seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# Birch Reference
-# target_genes1 = read.fasta("refs/Birch_3_out_split_Lib1.full_nRE_nPrim.genes", seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
 
 # Reformat as data frame
 target_genes1 <- as.data.frame(do.call(rbind, target_genes1))
@@ -142,21 +138,11 @@ cat("Median: ", median(trimmed_dna_lengths), "\n")
 ```{r}
 #load raw sequencing data
 
-# 384 - 1x Beads
-raw1 = read.fasta("out/R8FRST_1_384-1x.fasta", seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
+# L71-12k DHFR
+raw1 = read.fasta("out/DNGXRH_1_L71.fasta", seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
 
-# 384 - 2x Beads
-# raw1 = read.fasta("out/R8FRST_2_384-2x.fasta", seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# 1536
-# raw1 = read.fasta("out/R8FRST_3_1536.fasta", seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# # Birch (Latest Assembly)
-# raw1 = read.fasta("out/R8FRST_4_L1-Slow.fasta", seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# Birch (Original Assembly)
-# raw1 = read.fasta("out/TDRTT3_1_sample_1.fasta", seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
+# L79-12k DHFR
+# raw1 = read.fasta("out/DNGXRH_4_L79.fasta", seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
 
 # Reformat as data frame
 raw1 <- as.data.frame(do.call(rbind, raw1))
@@ -203,7 +189,7 @@ ggplot(raw1, aes(x = ntlen)) +
        y = "Frequency") +
   theme_minimal()
 
-ggsave(file="RMD/plots/R8FRST_1_384-1x_raw_seq_length_histogram.png",
+ggsave(file="RMD/plots/DNGXRH_1_L71_raw_seq_length_histogram.png",
        dpi=600, width = 8, height = 6, units = "in")
 ```
 
@@ -251,20 +237,11 @@ target_genes1$perfectcount1dna[is.na(target_genes1$perfectcount1dna)] <- 0
 ```{r}
 # Import SAM file from bbmap output
 
-# 384 - 1x Beads
-SAM_listc1 <- read.sam("out/R8FRST_1_384-1x.bbmap.merged.sam")
+# L71-12k DHFR
+SAM_listc1 <- read.sam("out/DNGXRH_1_L71.bbmap.merged.sam")
 
-# 384 - 2x Beads
-# SAM_listc1 <- read.sam("out/R8FRST_2_384-2x.bbmap.merged.sam")
-
-# 1536
-# SAM_listc1 <- read.sam("out/R8FRST_3_1536.bbmap.merged.sam")
-
-# # Birch (latest assembly)
-# SAM_listc1 <- read.sam("out/R8FRST_4_L1-Slow.bbmap.merged.sam")
-
-# Birch (original assembly)
-# SAM_listc1 <- read.sam("out/TDRTT3_1_sample_1.bbmap.merged.sam")
+# L79-12k DHFR
+# SAM_listc1 <- read.sam("out/DNGXRH_4_L79.bbmap.merged.sam")
 
 # Convert to dataframe
 aln1 <- SAM_listc1$x
@@ -357,7 +334,7 @@ ggplot(target_genes1_100, aes(x = pperf)) +
     y = "Count"
   )
 
-ggsave(file="RMD/plots/R8FRST_1_384-1x_pct_perfect_histogram.png",
+ggsave(file="RMD/plots/DNGXRH_1_L71_pct_perfect_histogram.png",
        dpi=600, width = 8, height = 6, units = "in")
 ```
 
@@ -391,7 +368,7 @@ ggplot(target_genes1,aes(y=perfectcount1dna,x=perfects.key)) +
   theme(legend.position = "none")
 
 # Save plot
-ggsave(file="RMD/plots/R8FRST_1_384-1x_rank_order_perfects.png",
+ggsave(file="RMD/plots/DNGXRH_1_L71_rank_order_perfects.png",
        dpi=600, width = 8, height = 6, units = "in")
 ```
 
@@ -406,7 +383,7 @@ ggplot(target_genes1,aes(y=tco1,x=tco1.key)) +
   theme_minimal()+
   theme(legend.position = "none")
 
-ggsave(file="RMD/plots/R8FRST_1_384-1x_rank_order_all.png",
+ggsave(file="RMD/plots/DNGXRH_1_L71_rank_order_all.png",
        dpi=600, width = 8, height = 6, units = "in")
 ```
 
