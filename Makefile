@@ -71,7 +71,7 @@ all: prepare process_barcodes run_bbmap run_minimap extract_top_align_reads_bbma
 #========================================================================
 # STEP 1: Prep directories
 prepare:
-	mkdir -p $(OUTPUT_DIR) $(LOG_DIR) $(OUTPUT_DIR)/counts $(OUTPUT_DIR)/read_fasta $(RMD_DIR) $(RMD_DIR)/plots
+	mkdir -p $(OUTPUT_DIR) $(LOG_DIR) $(OUTPUT_DIR)/counts $(OUTPUT_DIR)/read_fasta $(RMD_DIR)
 
 #========================================================================
 # STEP 2: Barcode processing (chunked or single-file)
