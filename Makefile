@@ -13,6 +13,7 @@ REF_DIR     := $(PROJ_DIR)/refs
 SCRIPT_DIR  := $(PROJ_DIR)/scripts
 OUTPUT_DIR  := $(PROJ_DIR)/out
 LOG_DIR     := $(PROJ_DIR)/logs
+RMD_DIR   	:= $(PROJ_DIR)/RMD
 
 # Define Variables (Do NOT change)
 BC_INFO_FILE := merged.sorted_noN_aa
@@ -70,7 +71,7 @@ all: prepare process_barcodes run_bbmap run_minimap extract_top_align_reads_bbma
 #========================================================================
 # STEP 1: Prep directories
 prepare:
-	mkdir -p $(OUTPUT_DIR) $(LOG_DIR) $(OUTPUT_DIR)/counts $(OUTPUT_DIR)/read_fasta
+	mkdir -p $(OUTPUT_DIR) $(LOG_DIR) $(OUTPUT_DIR)/counts $(OUTPUT_DIR)/read_fasta $(RMD_DIR) $(RMD_DIR)/plots
 
 #========================================================================
 # STEP 2: Barcode processing (chunked or single-file)

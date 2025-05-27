@@ -12,14 +12,14 @@
 ### 1. Clone the repository
 
 ```bash
-git clone git@github.com:SynPlexity/gene-map-nBC-docker.git
+git clone git@github.com:PlesaLab/gene-map-nBC-docker.git
 cd gene-map-nBC-docker
 ```
 
 If you prefer HTTPS, use:
 
 ```bash
-git clone https://github.com/SynPlexity/gene-map-nBC-docker.git
+git clone https://github.com/PlesaLab/gene-map-nBC-docker.git
 cd gene-map-nBC-docker
 ```
 
@@ -78,11 +78,8 @@ Once the `newenv:latest` image is activated, run `make` targets as follows:
 
 ```bash
 # To run a specific FASTQ sample
-make CONF=R8FRST_1_384-1x.conf all
-make CONF=R8FRST_2_384-2x.conf all
-make CONF=R8FRST_3_1536.conf all
-make CONF=R8FRST_4_L1-Slow.Birch.conf all
-make CONF=TDRTT3_1_Birch_1.conf all
+make CONF=DNGXRH_1_L71.1.conf
+make CONF=DNGXRH_4_L79.1.conf
 
 # To run all FASTQ samples at the same time
 make all_samples
@@ -97,7 +94,7 @@ docker run --rm -it \
   -v "$(pwd)":/workspace \
   -w /workspace \
   newenv:latest \
-  make CONF=R8FRST_1_384-1x.conf all
+  make CONF=DNGXRH_1_L71.1.conf all
 ```
 
 **Option 3:**
@@ -255,18 +252,6 @@ You can duplicate `[fastq.gz.specific].conf` for multiple libraries.
 
 - `all_samples` – run all targets in sequential order for all `[fastq.gz.specific].conf` datasets
 
-**OPTIONAL**
-
-- `trim_fasta.py` - standalone python script to remove 504 primers from reference `.fasta` files
-
-```bash
-# Trim 504 primers from 384 reference
-python scripts/trim_fasta.py refs/lib384_gene_full_with_504.fasta refs/lib384_gene_full_wo_504.fasta
-
-# Trim 504 primers from 1536 reference
-python scripts/trim_fasta.py refs/lib1536_gene_full_with_504.fasta refs/lib1536_gene_full_wo_504.fasta
-```
-
 ---
 
 ### Logs & Outputs
@@ -287,5 +272,5 @@ python scripts/trim_fasta.py refs/lib1536_gene_full_with_504.fasta refs/lib1536_
 
 **Maintainers:**
  
-- Karl Romanowicz (karl@synplexity.com)
-- Calin Plesa (calin@synplexity.com)
+- Karl Romanowicz (krom@uoregon.edu)
+- Calin Plesa (calin@uoregon.edu)
