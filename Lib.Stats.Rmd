@@ -20,7 +20,7 @@ editor_options:
   chunk_output_type: inline
 ---
 
-**GitHub Repository:** [https://github.com/SynPlexity/gene-map-nBC-docker](https://github.com/SynPlexity/gene-map-nBC-docker)
+**GitHub Repository:** [https://github.com/PlesaLab/gene-map-nBC-docker](https://github.com/PlesaLab/gene-map-nBC-docker)
 
 # Experiment
 
@@ -90,319 +90,39 @@ source("scripts/1_SAM_read.R")
 
 ## Reference Data
 
+Import REFERENCE fasta
 ```{r}
-# Import REFERENCE fasta
-
-# Birch Reference
-# target_genes1 = read.fasta("refs/Birch_3_out_split_Lib1.full_nRE_nPrim.genes", 
-#                            seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# 384 Reference - Common Overlaps (Chimera Analysis)
-# target_genes1 = read.fasta("refs/Chimera_Agilent_384-1536/lib384_gene_full_wo_504.fasta",
-#                            seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# 1536 Reference - Common Overlaps (Chimera Analysis)
-# target_genes1 = read.fasta("refs/Chimera_Agilent_384-1536/lib1536_gene_full_wo_504.fasta",
-#                            seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# 384-1536 MERGED Reference - Common Overlaps (Chimera Analysis)
-# target_genes1 = read.fasta("refs/Chimera_Agilent_384-1536/lib384_1536_combined_wo_504.fasta",
-#                            seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
 # 384 Reference - UNIQUE Overlaps
-# target_genes1 = read.fasta("refs/Unique_Twist_384-1536/unique_overlap_lib384_gene_full_wo_504.fasta",
-#                            seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
+target_genes1 = read.fasta("refs/Unique_Twist_384-1536/unique_overlap_lib384_gene_full_wo_504.fasta",
+                           seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
 
 # 1536 Reference - UNIQUE Overlaps
 # target_genes1 = read.fasta("refs/Unique_Twist_384-1536/unique_overlap_lib1536_gene_full_wo_504.fasta",
-#                            seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-###-----------------
-
-# AlignFdn AF-2 (342) Reference - w/ Padding
-# target_genes1 = read.fasta("refs/AlignFdn/AF.lib2.342_wPad_wRE_n504.fasta",
-#                            seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# AlignFdn AF-2 (342) Reference - WITHOUT Padding
-# target_genes1 = read.fasta("refs/AlignFdn/wRE_nPad_n504/AF.lib2.342_wRE_nPad_n504.genes",
-#                            seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# AlignFdn AF-16 (1340) Reference - w/ Padding
-# target_genes1 = read.fasta("refs/AlignFdn/AF.lib16.1340_wPad_wRE_n504.fasta",
-#                            seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# AlignFdn AF-16 (1340) Reference - WITHOUT Padding
-# target_genes1 = read.fasta("refs/AlignFdn/wRE_nPad_n504/AF.lib16.1340_wRE_nPad_n504.genes",
-#                            seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# AlignFdn AF-18 (1340) Reference - w/ Padding
-target_genes1 = read.fasta("refs/AlignFdn/AF.lib18.1340_wPad_wRE_n504.fasta",
-                           seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# AlignFdn AF-18 (1340) Reference - WITHOUT Padding
-# target_genes1 = read.fasta("refs/AlignFdn/wRE_nPad_n504/AF.lib18.1340_wRE_nPad_n504.genes",
-#                            seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# AlignFdn AF-20 (1335) Reference - w/ Padding
-# target_genes1 = read.fasta("refs/AlignFdn/AF.lib20.1335_wPad_wRE_n504.fasta",
-#                            seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# AlignFdn AF-20 (1335) Reference - WITHOUT Padding
-# target_genes1 = read.fasta("refs/AlignFdn/wRE_nPad_n504/AF.lib20.1335_wRE_nPad_n504.genes",
 #                            seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
 ```
 
 ## Raw Data
 
+Load RAW sequencing data
 ```{r}
-# Load raw sequencing data
-
-# R8FRST_1_384-1x
-# raw1 = read.fasta("out/R8FRST_1_384-1x.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# R8FRST_2_384-2x
-# raw1 = read.fasta("out/R8FRST_2_384-2x.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# R8FRST_3_1536
-# raw1 = read.fasta("out/R8FRST_3_1536.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# KKRWPL_384_hotwash
-# raw1 = read.fasta("out/KKRWPL_384_hotwash.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# KKRWPL_1536_hotwash
-# raw1 = read.fasta("out/KKRWPL_1536_hotwash.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# KKRWPL_1536oli_384bead_CrossCap
-# raw1 = read.fasta("out/KKRWPL_1536oli_384bead_CrossCap.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# 3ZLJPL_384_hotwash
-# raw1 = read.fasta("out/3ZLJPL_384_hotwash.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# 4462WM_1536_w384ref_1
-# raw1 = read.fasta("out/4462WM_1536-1_384ref.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# 4462WM_1536_w384ref_2
-# raw1 = read.fasta("out/4462WM_1536-2_384ref.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# 4462WM_1536_w1536ref_1
-# raw1 = read.fasta("out/4462WM_1536-1_1536ref.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# 4462WM_1536_w1536ref_2
-# raw1 = read.fasta("out/4462WM_1536-2_1536ref.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# 4462WM_1536_w384-1536MERGEDref_1
-# raw1 = read.fasta("out/4462WM_1536-1_384-1536MERGEDref.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# 4462WM_1536_w384-1536MERGEDref_2
-# raw1 = read.fasta("out/4462WM_1536-2_384-1536MERGEDref.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
 # SV825S_384_unique_combined
-# raw1 = read.fasta("out/SV825S_384_unique_combined.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
+raw1 = read.fasta("out/SV825S_384_unique_combined.fasta",
+                  seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
 
 # SV825S_1536_unique_combined
 # raw1 = read.fasta("out/SV825S_1536_unique_combined.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# 27BX2S_384_unique_deep
-# raw1 = read.fasta("out/27BX2S_384_unique_deep.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# 27BX2S_1536_unique_deep
-# raw1 = read.fasta("out/27BX2S_1536_unique_deep.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# BKVF4S_1_AF-2.fastq.gz - w/ Padding
-# raw1 = read.fasta("out/BKVF4S_AF-2_342_deep.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# BKVF4S_1_AF-2.fastq.gz - WITHOUT Padding
-# raw1 = read.fasta("out/BKVF4S_AF-2_342_deep_nPad.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# BKVF4S_2_AF-16.fastq.gz - w/ Padding
-# raw1 = read.fasta("out/BKVF4S_AF-16_1340_deep.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# BKVF4S_2_AF-16.fastq.gz - WITHOUT Padding
-# raw1 = read.fasta("out/BKVF4S_AF-16_1340_deep_nPad.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# BKVF4S_3_AF-18.fastq.gz - w/ Padding
-# raw1 = read.fasta("out/BKVF4S_AF-18_1340_deep.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# BKVF4S_3_AF-18.fastq.gz - WITHOUT Padding
-# raw1 = read.fasta("out/BKVF4S_AF-18_1340_deep_nPad.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# BKVF4S_4_AF-20.fastq.gz - w/ Padding
-# raw1 = read.fasta("out/BKVF4S_AF-20_1335_deep.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# BKVF4S_4_AF-20.fastq.gz - WITHOUT Padding
-# raw1 = read.fasta("out/BKVF4S_AF-20_1335_deep_nPad.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-###-------------
-
-# HK6NM_AF-2.fastq - w/ Padding
-# raw1 = read.fasta("out/HK6NML_AF-2_342.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# HK6NML_AF-2.fastq - WITHOUT Padding
-# raw1 = read.fasta("out/HK6NML_AF-2_342_nPad.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# HK6NML_AF-16.fastq - w/ Padding
-# raw1 = read.fasta("out/HK6NML_AF-16_1340.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# HK6NML_AF-16.fastq - WITHOUT Padding
-# raw1 = read.fasta("out/HK6NML_AF-16_1340_nPad.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# HK6NML_AF-18.fastq - w/ Padding
-raw1 = read.fasta("out/HK6NML_AF-18_1340.fasta",
-                  seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# HK6NML_AF-18.fastq - WITHOUT Padding
-# raw1 = read.fasta("out/HK6NML_AF-18_1340_nPad.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# HK6NML_AF-20.fastq - w/ Padding
-# raw1 = read.fasta("out/HK6NML_AF-20_1335.fasta",
-#                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
-
-# HK6NML_AF-20.fastq - WITHOUT Padding
-# raw1 = read.fasta("out/HK6NML_AF-20_1335_nPad.fasta",
 #                   seqtype = "DNA", as.string = TRUE, set.attributes=FALSE)
 ```
 
 ## BBMap Files
 
+Import SAM file from BBMap output
 ```{r}
-# Import SAM file from bbmap output
-
-# Birch (latest assembly)
-# SAM_listc1 <- read.sam("out/R8FRST_4_L1-Slow.bbmap.merged.sam")
-
-# 384 - 1x Beads
-# SAM_listc1 <- read.sam("out/R8FRST_1_384-1x.bbmap.merged.sam")
-
-# 384 - 2x Beads
-# SAM_listc1 <- read.sam("out/R8FRST_2_384-2x.bbmap.merged.sam")
-
-# 1536
-# SAM_listc1 <- read.sam("out/R8FRST_3_1536.bbmap.merged.sam")
-
-# KKRWPL_384_hotwash
-# SAM_listc1 <- read.sam("out/KKRWPL_384_hotwash.bbmap.merged.sam")
-
-# KKRWPL_1536_hotwash
-# SAM_listc1 <- read.sam("out/KKRWPL_1536_hotwash.bbmap.merged.sam")
-
-# KKRWPL_1536oli_384bead_CrossCap
-# SAM_listc1 <- read.sam("out/KKRWPL_1536oli_384bead_CrossCap.bbmap.merged.sam")
-
-# 3ZLJPL_384_hotwash
-# SAM_listc1 <- read.sam("out/3ZLJPL_384_hotwash.bbmap.merged.sam")
-
-# 4462WM_1536_w384ref
-# SAM_listc1 <- read.sam("out/4462WM_1536-1_384ref.bbmap.merged.sam")
-
-# 4462WM_1536_w384ref_2
-# SAM_listc1 <- read.sam("out/4462WM_1536-2_384ref.bbmap.merged.sam")
-
-# 4462WM_1536_w1536ref_1
-# SAM_listc1 <- read.sam("out/4462WM_1536-1_1536ref.bbmap.merged.sam")
-
-# 4462WM_1536_w1536ref_2
-# SAM_listc1 <- read.sam("out/4462WM_1536-2_1536ref.bbmap.merged.sam")
-
-# 4462WM_1536_w384-1536MERGEDref_1
-# SAM_listc1 <- read.sam("out/4462WM_1536-1_384-1536MERGEDref.bbmap.merged.sam")
-
-# 4462WM_1536_w384-1536MERGEDref_2
-# SAM_listc1 <- read.sam("out/4462WM_1536-2_384-1536MERGEDref.bbmap.merged.sam")
-
 # SV825S_384_unique_combined
-# SAM_listc1 <- read.sam("out/SV825S_384_unique_combined.bbmap.merged.sam")
+SAM_listc1 <- read.sam("out/SV825S_384_unique_combined.bbmap.merged.sam")
 
 # SV825S_1536_unique_combined
 # SAM_listc1 <- read.sam("out/SV825S_1536_unique_combined.bbmap.merged.sam")
-
-# 27BX2S_384_unique_deep
-# SAM_listc1 <- read.sam("out/27BX2S_384_unique_deep.bbmap.merged.sam")
-
-# 27BX2S_1536_unique_deep
-# SAM_listc1 <- read.sam("out/27BX2S_1536_unique_deep.bbmap.merged.sam")
-
-# BKVF4S_1_AF-2.fastq.gz - w/ Padding
-# SAM_listc1 <- read.sam("out/BKVF4S_AF-2_342_deep.bbmap.merged.sam")
-
-# BKVF4S_1_AF-2.fastq.gz - WITHOUT Padding
-# SAM_listc1 <- read.sam("out/BKVF4S_AF-2_342_deep_nPad.bbmap.merged.sam")
-
-# BKVF4S_2_AF-16.fastq.gz - w/ Padding
-# SAM_listc1 <- read.sam("out/BKVF4S_AF-16_1340_deep.bbmap.merged.sam")
-
-# BKVF4S_2_AF-16.fastq.gz - WITHOUT Padding
-# SAM_listc1 <- read.sam("out/BKVF4S_AF-16_1340_deep_nPad.bbmap.merged.sam")
-
-# BKVF4S_3_AF-18.fastq.gz - w/ Padding
-# SAM_listc1 <- read.sam("out/BKVF4S_AF-18_1340_deep.bbmap.merged.sam")
-
-# BKVF4S_3_AF-18.fastq.gz - WITHOUT Padding
-# SAM_listc1 <- read.sam("out/BKVF4S_AF-18_1340_deep_nPad.bbmap.merged.sam")
-
-# BKVF4S_4_AF-20.fastq.gz - w/ Padding
-# SAM_listc1 <- read.sam("out/BKVF4S_AF-20_1335_deep.bbmap.merged.sam")
-
-# BKVF4S_4_AF-20.fastq.gz - WITHOUT Padding
-# SAM_listc1 <- read.sam("out/BKVF4S_AF-20_1335_deep_nPad.bbmap.merged.sam")
-
-# BKVF4S_4_AF-20.fastq.gz - w/ Padding -- MAPPED TO 1536-UNIQUE REFERENCE
-# SAM_listc1 <- read.sam("out/BKVF4S_AF-20_1335_deep.Twist1536ref.bbmap.merged.sam")
-
-###------------
-
-# HK6NML_AF-2.fastq - w/ Padding
-# SAM_listc1 <- read.sam("out/HK6NML_AF-2_342.bbmap.merged.sam")
-
-# HK6NML_1_AF-2.fastq - WITHOUT Padding
-# SAM_listc1 <- read.sam("out/HK6NML_AF-2_342_nPad.bbmap.merged.sam")
-
-# HK6NML_2_AF-16.fastq - w/ Padding
-# SAM_listc1 <- read.sam("out/HK6NML_AF-16_1340.bbmap.merged.sam")
-
-# HK6NML_2_AF-16.fastq - WITHOUT Padding
-# SAM_listc1 <- read.sam("out/HK6NML_AF-16_1340_nPad.bbmap.merged.sam")
-
-# HK6NML_3_AF-18.fastq - w/ Padding
-SAM_listc1 <- read.sam("out/HK6NML_AF-18_1340.bbmap.merged.sam")
-
-# HK6NML_3_AF-18.fastq - WITHOUT Padding
-# SAM_listc1 <- read.sam("out/HK6NML_AF-18_1340_nPad.bbmap.merged.sam")
-
-# HK6NML_4_AF-20.fastq - w/ Padding
-# SAM_listc1 <- read.sam("out/HK6NML_AF-20_1335.bbmap.merged.sam")
-
-# HK6NML_4_AF-20.fastq - WITHOUT Padding
-# SAM_listc1 <- read.sam("out/HK6NML_AF-20_1335_nPad.bbmap.merged.sam")
 ```
 
 # Data Analysis
@@ -455,7 +175,7 @@ ref_seq_histogram <- ggplot(target_genes1_length, aes(x = ntlen)) +
     alpha    = 0.8
   ) +
   scale_x_continuous(
-    limits = c(100, 1050),
+    limits = c(100, 300),
     breaks = seq(100, 1050, by = 50)
   ) +
   labs(
@@ -471,15 +191,6 @@ print(ref_seq_histogram)
 
 ggsave(filename = "RMD/ref_seq_length_histogram.png", ref_seq_histogram,
   dpi = 600, width = 8, height = 6, units = "in")
-
-# ggsave(filename = "RMD/refBirch_seq_length_histogram.png",
-#   dpi = 600, width = 8, height = 6, units = "in")
-
-# ggsave(filename = "RMD/ref384_seq_length_histogram.png",
-#   dpi = 600, width = 8, height = 6, units = "in")
-
-# ggsave(filename = "RMD/ref1536_seq_length_histogram.png",
-#   dpi = 600, width = 8, height = 6, units = "in")
 ```
 
 ## Raw Data
@@ -524,7 +235,7 @@ raw1_gp <- raw1 %>%
 # Plot histogram
 raw_seq_histogram <- ggplot(raw1, aes(x = ntlen)) +
   geom_histogram(binwidth = 5, fill = "blue", alpha = 0.7, color = "black") +
-  xlim(100,1000)+
+  xlim(100,500)+
   labs(title = "Raw Sequences -- Length Distribution (504 Primer Removed)",
        x = "Sequence Length",
        y = "Frequency") +
