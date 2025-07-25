@@ -6,41 +6,51 @@ SHELL := /bin/bash
 # Makefile for processing FASTQ files with barcodes (chunkable mode)
 
 # Define Directories
-PROJ_DIR    := $(shell pwd)
-INPUT_DIR   := $(PROJ_DIR)/fastq
-CONFIG_DIR  := $(PROJ_DIR)/config
-REF_DIR     := $(PROJ_DIR)/refs
-SCRIPT_DIR  := $(PROJ_DIR)/scripts
-OUTPUT_DIR  := $(PROJ_DIR)/out
-LOG_DIR     := $(PROJ_DIR)/logs
-RMD_DIR   	:= $(PROJ_DIR)/RMD
+PROJ_DIR       := $(shell pwd)
+INPUT_DIR      := $(PROJ_DIR)/fastq
+CONFIG_DIR     := $(PROJ_DIR)/config
+REF_DIR        := $(PROJ_DIR)/refs
+SCRIPT_DIR     := $(PROJ_DIR)/scripts
+OUTPUT_DIR     := $(PROJ_DIR)/out
+LOG_DIR        := $(PROJ_DIR)/logs
+
+# Allow targeting a sub-directory under config/
+CONFIG_SUBDIR ?=
+ifneq ($(CONFIG_SUBDIR),)
+  CONFIG_SEARCH_DIR := $(CONFIG_DIR)/$(CONFIG_SUBDIR)
+else
+  CONFIG_SEARCH_DIR := $(CONFIG_DIR)
+endif
 
 # Define Variables (Do NOT change)
-BC_INFO_FILE := merged.sorted_noN_aa
-TRANS_FILES  := merged.sorted_noN_aa.csv
-SAM_FILES    := merged.sorted
+BC_INFO_FILE   := merged.sorted_noN_aa
+TRANS_FILES    := merged.sorted_noN_aa.csv
+SAM_FILES      := merged.sorted
 
-# Software commands\ nPYTHON   := python
-BBMAP    := bbmap.sh
-SAMTOOLS := samtools
-MINIMAP  := minimap2
+# Software commands
+PYTHON         := python
+BBMAP          := bbmap.sh
+SAMTOOLS       := samtools
+MINIMAP        := minimap2
 
 # Python scripts
-BC_PROCESSING		:= $(SCRIPT_DIR)/barcode_processing.py
-SPLIT_SCRIPT		:= $(SCRIPT_DIR)/split_script.py
-EXTRACT_ALIGN_READS	:= $(SCRIPT_DIR)/extract_top_align_reads.py
-SAM_PARSE_SCRIPT	:= $(SCRIPT_DIR)/parse_sam_script.py
+BC_PROCESSING       := $(SCRIPT_DIR)/barcode_processing.py
+SPLIT_SCRIPT        := $(SCRIPT_DIR)/split_script.py
+EXTRACT_ALIGN_READS := $(SCRIPT_DIR)/extract_top_align_reads.py
+
+# Default target
+.DEFAULT_GOAL := all
 
 #========================================================================
 # Load configs per sample
-CONFIG_FILES := $(wildcard $(CONFIG_DIR)/*.conf)
+CONFIG_FILES := $(wildcard $(CONFIG_SEARCH_DIR)/*.conf)
 
 .PHONY: all_samples
 all_samples:
 	@for cfg in $(CONFIG_FILES); do \
-	  name=$$(basename $$cfg); \
-	  echo "===== Processing sample $$name ====="; \
-	  $(MAKE) CONF=$$name all; \
+	  rel=$${cfg#$(CONFIG_DIR)/}; \
+	  echo "===== Processing sample $$rel ====="; \
+	  $(MAKE) CONF=$$rel all; \
 	done
 
 ifneq ($(MAKECMDGOALS),all_samples)
@@ -52,7 +62,8 @@ endif
 
 #========================================================================
 # Define outputs based on INPUT_FASTQ from .conf
-FILEBASE			:= $(basename $(basename $(notdir $(INPUT_FASTQ))))
+#FILEBASE			:= $(basename $(basename $(notdir $(INPUT_FASTQ))))
+FILEBASE 			:= $(basename $(notdir $(CONF)))
 OUTPUT_PREFIX		:= $(OUTPUT_DIR)/$(FILEBASE)_chunk_
 PROCESSED_FASTA		:= $(OUTPUT_DIR)/$(FILEBASE).fasta
 BBMAP_OUTPUT		:= $(OUTPUT_DIR)/$(FILEBASE).bbmap.merged.sam
@@ -64,14 +75,16 @@ MINIMAP_UNALIGNED	:= $(OUTPUT_DIR)/$(FILEBASE).minimap.merged.unaligned.fastq
 .SECONDARY: $(PROCESSED_FASTA) $(BBMAP_OUTPUT) $(BBMAP_UNALIGNED) $(MINIMAP_OUTPUT) $(MINIMAP_UNALIGNED)
 #========================================================================
 # Primary workflow
-all: prepare process_barcodes run_bbmap run_minimap extract_top_align_reads_bbmap extract_top_align_reads_minimap
+all: prepare process_barcodes run_bbmap extract_top_align_reads_bbmap
+# all: prepare process_barcodes run_bbmap run_minimap extract_top_align_reads_bbmap extract_top_align_reads_minimap
 
-.PHONY: all prepare split_fastq process_barcodes_chunks merge_fasta process_barcodes run_bbmap run_minimap extract_top_align_reads_bbmap extract_top_align_reads_minimap
+.PHONY: all prepare split_fastq process_barcodes_chunks merge_fasta process_barcodes run_bbmap extract_top_align_reads_bbmap
+# .PHONY: all prepare split_fastq process_barcodes_chunks merge_fasta process_barcodes run_bbmap run_minimap extract_top_align_reads_bbmap extract_top_align_reads_minimap
 
 #========================================================================
 # STEP 1: Prep directories
 prepare:
-	mkdir -p $(OUTPUT_DIR) $(LOG_DIR) $(OUTPUT_DIR)/counts $(OUTPUT_DIR)/read_fasta $(RMD_DIR)
+	mkdir -p $(OUTPUT_DIR) $(LOG_DIR) $(OUTPUT_DIR)/counts $(OUTPUT_DIR)/read_fasta $(PROJ_DIR)/RMD
 
 #========================================================================
 # STEP 2: Barcode processing (chunked or single-file)

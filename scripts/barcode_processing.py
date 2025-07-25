@@ -71,51 +71,57 @@ def main():
     os.makedirs(logs_dir, exist_ok=True)
 
     with open_maybe_gz(input_file) as handle:
-        records = list(SeqIO.parse(handle, 'fastq'))
-    total = len(records)
-    print(f"{total} total records")
+#         records = list(SeqIO.parse(handle, 'fastq'))
 
-    rc_count = nomatchcount = count_no_startsite = count_no_endsite = bafframecount = goodaa = 0
-    d = collections.defaultdict(list)
-    dnum = {}
-    outputseqs_noN = []
+        # init the variables for init
+        rc_count = nomatchcount = count_no_startsite = count_no_endsite = bafframecount = goodaa = 0
+        d = collections.defaultdict(list)
+        dnum = {}
+        outputseqs_noN = []
+        i = 1
 
-    for i, record in enumerate(records, 1):
-        if i % 50000 == 0:
-            print(f"On record: {i}")
-        seq = str(record.seq).upper()
-        match = regex.search(motif, seq, regex.BESTMATCH)
-        if not match:
-            seq = str(record.seq.reverse_complement()).upper()
+        for record in SeqIO.parse(handle, 'fastq'):
+            if i % 50000 == 0:
+                print(f"On record: {i}")
+            seq = str(record.seq).upper()
             match = regex.search(motif, seq, regex.BESTMATCH)
-            rc_count += 1
+            if not match:
+                seq = str(record.seq.reverse_complement()).upper()
+                match = regex.search(motif, seq, regex.BESTMATCH)
+                rc_count += 1
 
-        if match:
-            bc = DNA(barcode_length)
-            d[bc].append(seq)
-            if bc not in dnum:
-                dnum[bc] = 1
-                si = seq.find(start_site)
-                if si != -1:
-                    ei = seq.find(end_site)
-                    if ei != -1:
-                        subseq = seq[si + startsitelength:ei]
-                        if 'N' not in subseq:
-                            outputseqs_noN.append(SeqRecord(id=bc, seq=Seq(subseq), description=""))
-                            dnum[bc] = dnum.get(bc, 0) + 0  # keep count
-                            if len(subseq) % 3 != 0:
-                                bafframecount += 1
-                            aa = Seq(subseq).translate()
-                            if '*' not in str(aa):
-                                goodaa += 1
+            if match:
+                bc = DNA(barcode_length)
+                d[bc].append(seq)
+                if bc not in dnum:
+                    dnum[bc] = 1
+                    si = seq.find(start_site)
+                    if si != -1:
+                        ei = seq.find(end_site)
+                        if ei != -1:
+                            subseq = seq[si + startsitelength:ei]
+                            if 'N' not in subseq:
+                                outputseqs_noN.append(SeqRecord(id=bc, seq=Seq(subseq), description=""))
+                                dnum[bc] = dnum.get(bc, 0) + 0  # keep count
+                                if len(subseq) % 3 != 0:
+                                    bafframecount += 1
+                                aa = Seq(subseq).translate()
+                                if '*' not in str(aa):
+                                    goodaa += 1
+                        else:
+                            count_no_endsite += 1
                     else:
-                        count_no_endsite += 1
+                        count_no_startsite += 1
                 else:
-                    count_no_startsite += 1
+                    dnum[bc] += 1
             else:
-                dnum[bc] += 1
-        else:
-            nomatchcount += 1
+                nomatchcount += 1
+
+            # Update i
+            i+=1
+    # Moved down here for full output
+    total = i
+    print(f"{total} total records")
 
     print(f"{rc_count} times tried RC out of {total}")
     print(f"{nomatchcount} reads failed completely out of {total}")

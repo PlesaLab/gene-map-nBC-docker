@@ -1,0 +1,66 @@
+Running BBMap
+java -ea -Xmx7971m -Xms7971m -cp /opt/conda/envs/newenv/opt/bbmap-39.26-0/current/ align2.BBMap build=1 overwrite=true fastareadlen=500 ref=/workspace/refs/Unique_Twist_384-1536/unique_overlap_lib1536_gene_full_wo_504.fasta in=/workspace/out/SV825S_1536_unique_combined.fasta outm=/workspace/out/SV825S_1536_unique_combined.bbmap.merged.sam outu=/workspace/out/SV825S_1536_unique_combined.bbmap.merged.unaligned.sam
+Executing align2.BBMap [build=1, overwrite=true, fastareadlen=500, ref=/workspace/refs/Unique_Twist_384-1536/unique_overlap_lib1536_gene_full_wo_504.fasta, in=/workspace/out/SV825S_1536_unique_combined.fasta, outm=/workspace/out/SV825S_1536_unique_combined.bbmap.merged.sam, outu=/workspace/out/SV825S_1536_unique_combined.bbmap.merged.unaligned.sam]
+Version 39.26
+
+Retaining first best site only for ambiguous mappings.
+NOTE:	Deleting contents of ref/genome/1 because reference is specified and overwrite=true
+NOTE:	Deleting contents of ref/index/1 because reference is specified and overwrite=true
+Writing reference.
+Executing dna.FastaToChromArrays2 [/workspace/refs/Unique_Twist_384-1536/unique_overlap_lib1536_gene_full_wo_504.fasta, 1, writeinthread=false, genscaffoldinfo=true, retain, waitforwriting=false, gz=true, maxlen=536670912, writechroms=true, minscaf=1, midpad=300, startpad=8000, stoppad=8000, nodisk=false]
+
+Set genScaffoldInfo=true
+Writing chunk 1
+Set genome to 1
+
+Loaded Reference:	0.015 seconds.
+Loading index for chunk 1-1, build 1
+No index available; generating from reference genome: /workspace/ref/index/1/chr1_index_k13_c11_b1.block
+Indexing threads started for block 0-1
+Indexing threads finished for block 0-1
+Generated Index:	0.470 seconds.
+Analyzed Index:   	1.315 seconds.
+Started output stream:	0.014 seconds.
+Started output stream:	0.002 seconds.
+Cleared Memory:    	0.114 seconds.
+Processing reads in single-ended mode.
+Started read stream.
+Started 10 mapping threads.
+Warning: A fasta header with no sequence was encountered (0):
+CGTTGAATAAACTGTCCTTC
+
+Detecting finished threads: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+
+   ------------------   Results   ------------------   
+
+Genome:                	1
+Key Length:            	13
+Max Indel:             	16000
+Minimum Score Ratio:  	0.56
+Mapping Mode:         	normal
+Reads Used:           	7930	(2056658 bases)
+
+Mapping:          	3.050 seconds.
+Reads/sec:       	2599.93
+kBases/sec:      	674.30
+
+
+Read 1 data:      	pct reads	num reads 	pct bases	   num bases
+
+mapped:          	 91.1602% 	     7229 	 91.0840% 	     1873286
+unambiguous:     	 91.1602% 	     7229 	 91.0840% 	     1873286
+ambiguous:       	  0.0000% 	        0 	  0.0000% 	           0
+low-Q discards:  	  0.0000% 	        0 	  0.0000% 	           0
+
+perfect best site:	 36.9105% 	     2927 	 37.0026% 	      761016
+semiperfect site:	 36.9987% 	     2934 	 37.0816% 	      762642
+
+Match Rate:      	      NA 	       NA 	 98.7506% 	     1857752
+Error Rate:      	 58.5948% 	     4295 	  1.2305% 	       23148
+Sub Rate:        	 48.9495% 	     3588 	  0.6023% 	       11331
+Del Rate:        	 26.9031% 	     1972 	  0.4237% 	        7970
+Ins Rate:        	 20.3956% 	     1495 	  0.2045% 	        3847
+N Rate:          	  0.7503% 	       55 	  0.0189% 	         356
+
+Total time:     	5.111 seconds.
+BBMap completed.
