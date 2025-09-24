@@ -1,0 +1,15 @@
+Running minimap2 (full FASTA)
+[M::mm_idx_gen::0.004*0.85] collected minimizers
+[M::mm_idx_gen::0.006*1.28] sorted minimizers
+[M::main::0.006*1.27] loaded/built the index for 384 target sequence(s)
+[M::mm_mapopt_update::0.006*1.25] mid_occ = 10
+[M::mm_idx_stat] kmer size: 15; skip: 10; is_hpc: 0; #seq: 384
+[M::mm_idx_stat::0.007*1.24] distinct minimizers: 17335 (99.99% are singletons); average occurrences: 1.000; average spacing: 5.759; total length: 99840
+[M::worker_pipeline::0.130*2.17] mapped 7393 sequences
+[M::main] Version: 2.29-r1283
+[M::main] CMD: minimap2 -ax map-ont --secondary=no -o /workspace/out/SV825S_Twist_Unique_384/SV825S_Twist_Unique_384.minimap.merged.sam /workspace/refs/Twist_Unique/unique_overlap_lib384_gene_full_wo_504.fasta /workspace/out/SV825S_Twist_Unique_384/SV825S_Twist_Unique_384.fasta
+[M::main] Real time: 0.131 sec; CPU: 0.283 sec; Peak RSS: 0.024 GB
+Extracting unmapped reads (full FASTA)
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 18 reads
+minimap2 completed (full FASTA).

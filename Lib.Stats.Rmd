@@ -20,7 +20,7 @@ editor_options:
   chunk_output_type: inline
 ---
 
-**GitHub Repository:** [https://github.com/SynPlexity/gene-map-nBC-docker](https://github.com/SynPlexity/gene-map-nBC-docker)
+**GitHub Repository:** [https://github.com/PlesaLab/gene-map-nBC-docker](https://github.com/PlesaLab/gene-map-nBC-docker)
 
 # Experiment
 
@@ -75,36 +75,10 @@ source("scripts/1_SAM_read.R")
 # Catalog of reference FASTA paths (named keys)
 FASTA_REF <- c(
   
-  # Birch Analysis
-  Birch_ref                        = "refs/Birch_3_out_split_Lib1.full_nRE_nPrim.genes",
+    # Unique Overlaps
+  Unique_lib384                    = "refs/Twist_Unique/unique_overlap_lib384_gene_full_wo_504.fasta",
+  Unique_lib1536                   = "refs/Twist_Unique/unique_overlap_lib1536_gene_full_wo_504.fasta"
 
-  # Chimera Analysis
-  Chimera_lib384_common            = "refs/Chimera_Agilent_384-1536/lib384_gene_full_wo_504.fasta",
-  Chimera_lib1536_common           = "refs/Chimera_Agilent_384-1536/lib1536_gene_full_wo_504.fasta",
-  Chimera_merged_common            = "refs/Chimera_Agilent_384-1536/lib384_1536_combined_wo_504.fasta",
-
-  # Unique Overlaps
-  Unique_lib384                    = "refs/Unique_Twist_384-1536/unique_overlap_lib384_gene_full_wo_504.fasta",
-  Unique_lib1536                   = "refs/Unique_Twist_384-1536/unique_overlap_lib1536_gene_full_wo_504.fasta",
-
-  # AlignFdn Sets
-  AF2_pad                          = "refs/AlignFdn/AF.lib2.342_wPad_wRE_n504.fasta",
-  AF2_noPad                        = "refs/AlignFdn/wRE_nPad_n504/AF.lib2.342_wRE_nPad_n504.genes",
-
-  AF16_pad                         = "refs/AlignFdn/AF.lib16.1340_wPad_wRE_n504.fasta",
-  AF16_noPad                       = "refs/AlignFdn/wRE_nPad_n504/AF.lib16.1340_wRE_nPad_n504.genes",
-
-  AF18_pad                         = "refs/AlignFdn/AF.lib18.1340_wPad_wRE_n504.fasta",
-  AF18_noPad                       = "refs/AlignFdn/wRE_nPad_n504/AF.lib18.1340_wRE_nPad_n504.genes",
-
-  AF20_pad                         = "refs/AlignFdn/AF.lib20.1335_wPad_wRE_n504.fasta",
-  AF20_noPad                       = "refs/AlignFdn/wRE_nPad_n504/AF.lib20.1335_wRE_nPad_n504.genes",
-  
-  # Cradle Tests
-  CT6_deterministic                = "refs/CradleTest/CT.6.384_gene_full_wo_506.fasta",
-  CT7_stochastic                   = "refs/CradleTest/CT.7.384_gene_full_wo_507.fasta",
-  CT9_deterministic                = "refs/CradleTest/CT.9.1400_gene_full_wo_509.fasta",
-  CT20_stochastic                  = "refs/CradleTest/CT.20.1400_gene_full_wo_510.fasta"
 )
 
 # Helper to see available keys
@@ -116,7 +90,7 @@ list_fasta_options <- function() {
 ###------------------------------------------------------------
 
 # --- Select exactly one key to load (change this one line) ---
-SELECT_FASTA <- "CT20_stochastic"
+SELECT_FASTA <- "Unique_lib1536"
 
 ###------------------------------------------------------------
 
@@ -147,118 +121,12 @@ cat(sprintf("Loaded '%s' from %s with %d sequences.\n",
 # Catalog of raw sequencing FASTA paths (named keys)
 FASTA_RAW <- c(
   
-  # Chimera Analysis (Twist)---------------------------------------
-  
-  # Standard 1st Attempt
-  R8FRST_1_384_1x                    = "out/R8FRST_1_384-1x.fasta",
-  R8FRST_2_384_2x                    = "out/R8FRST_2_384-2x.fasta",
-  R8FRST_3_1536                      = "out/R8FRST_3_1536.fasta",
-
-  # Hotwash 1st Attempt
-  KKRWPL_384_hotwash                 = "out/KKRWPL_384_hotwash.fasta",
-  KKRWPL_1536_hotwash                = "out/KKRWPL_1536_hotwash.fasta",
-  KKRWPL_1536oli_384bead_CrossCap    = "out/KKRWPL_1536oli_384bead_CrossCap.fasta",
-
-  # Hotwash 2nd Attempt
-  `3ZLJPL_384_hotwash`               = "out/3ZLJPL_384_hotwash.fasta",
-
-  # Bead Switch Attempt
-  `4462WM_1536_w384ref_1`            = "out/4462WM_1536-1_384ref.fasta",
-  `4462WM_1536_w384ref_2`            = "out/4462WM_1536-2_384ref.fasta",
-  `4462WM_1536_w1536ref_1`           = "out/4462WM_1536-1_1536ref.fasta",
-  `4462WM_1536_w1536ref_2`           = "out/4462WM_1536-2_1536ref.fasta",
-  `4462WM_1536_w384-1536MERGEDref_1` = "out/4462WM_1536-1_384-1536MERGEDref.fasta",
-  `4462WM_1536_w384-1536MERGEDref_2` = "out/4462WM_1536-2_384-1536MERGEDref.fasta",
-
-  # Unique Overlaps (Twist)---------------------------------------
+    # Unique Overlaps (Twist)---------------------------------------
   
   # Shallow Sequencing
-  SV825S_384_unique_combined         = "out/SV825S_384_unique_combined.fasta",
-  SV825S_1536_unique_combined        = "out/SV825S_1536_unique_combined.fasta",
+  SV825S_384_unique_combined         = "out/SV825S_Twist_Unique_384/SV825S_Twist_Unique_384.fasta",
+  SV825S_1536_unique_combined        = "out/SV825S_Twist_Unique_1536/SV825S_Twist_Unique_1536.fasta"
 
-  # Deep Sequencing
-  `27BX2S_384_unique_deep`           = "out/27BX2S_384_unique_deep.fasta",
-  `27BX2S_1536_unique_deep`          = "out/27BX2S_1536_unique_deep.fasta",
-
-  # AlignFdn Sets------------------------------------------------
-  
-  # 2nd Rnd Assembly (Deep)
-  BKVF4S_AF2_pad                     = "out/BKVF4S_AF-2_342_deep.fasta",
-  BKVF4S_AF2_noPad                   = "out/BKVF4S_AF-2_342_deep_nPad.fasta",
-  BKVF4S_AF16_pad                    = "out/BKVF4S_AF-16_1340_deep.fasta",
-  BKVF4S_AF16_noPad                  = "out/BKVF4S_AF-16_1340_deep_nPad.fasta",
-  BKVF4S_AF18_pad                    = "out/BKVF4S_AF-18_1340_deep.fasta",
-  BKVF4S_AF18_noPad                  = "out/BKVF4S_AF-18_1340_deep_nPad.fasta",
-  BKVF4S_AF20_pad                    = "out/BKVF4S_AF-20_1335_deep.fasta",
-  BKVF4S_AF20_noPad                  = "out/BKVF4S_AF-20_1335_deep_nPad.fasta",
-
-  # 4th Rnd Assembly (Shallow)
-  HK6NML_AF2_pad                     = "out/HK6NML_AF-2_342.fasta",
-  HK6NML_AF2_noPad                   = "out/HK6NML_AF-2_342_nPad.fasta",
-  HK6NML_AF16_pad                    = "out/HK6NML_AF-16_1340.fasta",
-  HK6NML_AF16_noPad                  = "out/HK6NML_AF-16_1340_nPad.fasta",
-  HK6NML_AF18_pad                    = "out/HK6NML_AF-18_1340.fasta",
-  HK6NML_AF18_noPad                  = "out/HK6NML_AF-18_1340_nPad.fasta",
-  HK6NML_AF20_pad                    = "out/HK6NML_AF-20_1335.fasta",
-  HK6NML_AF20_noPad                  = "out/HK6NML_AF-20_1335_nPad.fasta",
-
-  # Pulse Method (Shallow)
-  DWJW9R_AF18_pad                    = "out/DWJW9R_AF-18_1340_OG_pulse.fasta",
-  DWJW9R_AF18_noPad                  = "out/DWJW9R_AF-18_1340_OG_pulse_nPad.fasta",
-
-  # 4th Rnd Assembly (Deep)
-  XWLXB6_AF2_pad                     = "out/XWLXB6_AF-2_342_4thRnd_deep.fasta",
-  XWLXB6_AF2_noPad                   = "out/XWLXB6_AF-2_342_4thRnd_deep_nPad.fasta",
-  XWLXB6_AF16_pad                    = "out/XWLXB6_AF-16_1340_4thRnd_deep.fasta",
-  XWLXB6_AF16_noPad                  = "out/XWLXB6_AF-16_1340_4thRnd_deep_nPad.fasta",
-  XWLXB6_AF18_pad                    = "out/XWLXB6_AF-18_1340_4thRnd_deep.fasta",
-  XWLXB6_AF18_noPad                  = "out/XWLXB6_AF-18_1340_4thRnd_deep_nPad.fasta",
-  XWLXB6_AF20_pad                    = "out/XWLXB6_AF-20_1335_4thRnd_deep.fasta",
-  XWLXB6_AF20_noPad                  = "out/XWLXB6_AF-20_1335_4thRnd_deep_nPad.fasta",
-
-  # Error Correction---------------------------------------------
-  
-  # Twist Unique EC - 1st Attempt
-  Twist384_errCorr                   = "out/5VCVDJ_Twist_384_error_correct.fasta",
-  Twist1536_errCorr                  = "out/5VCVDJ_Twist_1536_error_correct.fasta",
-  
-  # Twist Unique EC - 2nd Attempt
-  DF6WP4_Twist384_0.1x_errCorr       = "out/DF6WP4_Twist_384_0.1x_error_correct.fasta",
-  DF6WP4_Twist384_1x_errCorr         = "out/DF6WP4_Twist_384_1x_error_correct.fasta",
-  DF6WP4_Twist1536_0.1x_errCorr      = "out/DF6WP4_Twist_1536_0.1x_error_correct.fasta",
-  DF6WP4_Twist1536_1x_errCorr        = "out/DF6WP4_Twist_1536_1x_error_correct.fasta",
-
-  # AlignFdn 4th Rnd EC - 1st Attempt
-  LKYW36_AF2_pad                     = "out/LKYW36_AF-2_342_4thRnd_ErrorCorrect.fasta",
-  LKYW36_AF2_noPad                   = "out/LKYW36_AF-2_342_4thRnd_ErrorCorrect_nPad.fasta",
-  LKYW36_AF16_pad                    = "out/LKYW36_AF-16_1340_4thRnd_ErrorCorrect.fasta",
-  LKYW36_AF16_noPad                  = "out/LKYW36_AF-16_1340_4thRnd_ErrorCorrect_nPad.fasta",
-  LKYW36_AF20_pad                    = "out/LKYW36_AF-20_1335_4thRnd_ErrorCorrect.fasta",
-  LKYW36_AF20_noPad                  = "out/LKYW36_AF-20_1335_4thRnd_ErrorCorrect_nPad.fasta",
-  
-  # AlignFdn 4th Rnd EC - 2nd Attempt
-  F4LT8G_AF20_wo_EC_noPad            = "out/F4LT8G_AF-20_1335_R4_wo_ErrorCorrect_nPad.fasta",
-  F4LT8G_AF20_w_EC_noPad             = "out/F4LT8G_AF-20_1335_R4_w_ErrorCorrect_nPad.fasta",
-  
-  # Cradle Tests------------------------------------------------
-  
-  # CT-Assembly (Rnd1) -- Shallow
-  WTZJF9_CT6                         = "out/WTZJF9_CT-6_384_deterministic.fasta",
-  GDQPXY_CT7                         = "out/GDQPXY_CT-7_384_stochastic.fasta",
-  `5PM5YV_CT9`                       = "out/5PM5YV_CT-9_1400_deterministic.fasta",
-  `5PM5YV_CT20`                      = "out/5PM5YV_CT-20_1400_stochastic.fasta",
-  
-  # CT-Assembly (Touchdown sPCR) -- Shallow
-  ZNCGT3_CT7                        = "out/ZNCGT3_CT-7_384_stochastic.fasta",
-  ZNCGT3_CT20                       = "out/ZNCGT3_CT-20_1400_stochastic.fasta",
-  
-  # CT-Assembly (EC -- Rnd1) -- Shallow
-  K72NPH_CT6_EC                     = "out/K72NPH_CT-6_384_deterministic_EC.fasta",
-  K72NPH_CT7_EC                     = "out/K72NPH_CT-7_384_stochastic_EC.fasta",
-  
-  # CT-Assembly (OG DS Stochastic) -- Shallow
-  QFKT45_CT7      = "out/QFKT45_CT-7_384_stochastic/QFKT45_CT-7_384_stochastic.fasta",
-  QFKT45_CT20     = "out/QFKT45_CT-20_1400_stochastic/QFKT45_CT-20_1400_stochastic.fasta"
 )
 
 # Helper to see available keys
@@ -270,7 +138,7 @@ list_raw_options <- function() {
 ###------------------------------------------------------------
 
 # --- Select exactly one key to load (change this one line) ---
-SELECT_RAW <- "QFKT45_CT20"
+SELECT_RAW <- "SV825S_1536_unique_combined"
 
 ###------------------------------------------------------------
 
@@ -304,119 +172,12 @@ cat(sprintf("Loaded '%s' from %s with %d sequences.\n",
 # Catalog of BBMap SAM output paths (named keys)
 SAM_FILES <- c(
   
-  # Chimera Analysis (Twist)---------------------------------------
-  
-  # Standard 1st Attempt
-  R8FRST_1_384_1x                    = "out/R8FRST_1_384-1x.bbmap.merged.sam",
-  R8FRST_2_384_2x                    = "out/R8FRST_2_384-2x.bbmap.merged.sam",
-  R8FRST_3_1536                      = "out/R8FRST_3_1536.bbmap.merged.sam",
-
-  # Hotwash 1st Attempt
-  KKRWPL_384_hotwash                 = "out/KKRWPL_384_hotwash.bbmap.merged.sam",
-  KKRWPL_1536_hotwash                = "out/KKRWPL_1536_hotwash.bbmap.merged.sam",
-  KKRWPL_1536oli_384bead_CrossCap.   = "out/KKRWPL_1536oli_384bead_CrossCap.bbmap.merged.sam",
-
-  # Hotwash 2nd Attempt
-  `3ZLJPL_384_hotwash`               = "out/3ZLJPL_384_hotwash.bbmap.merged.sam",
-
-  # Bead Switch Attempt
-  `4462WM_1536_w384ref_1`            = "out/4462WM_1536-1_384ref.bbmap.merged.sam",
-  `4462WM_1536_w384ref_2`            = "out/4462WM_1536-2_384ref.bbmap.merged.sam",
-  `4462WM_1536_w1536ref_1`           = "out/4462WM_1536-1_1536ref.bbmap.merged.sam",
-  `4462WM_1536_w1536ref_2`           = "out/4462WM_1536-2_1536ref.bbmap.merged.sam",
-  `4462WM_1536_w384-1536MERGEDref_1` = "out/4462WM_1536-1_384-1536MERGEDref.bbmap.merged.sam",
-  `4462WM_1536_w384-1536MERGEDref_2` = "out/4462WM_1536-2_384-1536MERGEDref.bbmap.merged.sam",
-
-  # Unique Overlaps (Twist)---------------------------------------
+    # Unique Overlaps (Twist)---------------------------------------
   
   # Shallow Sequencing
-  SV825S_384_unique_combined         = "out/SV825S_384_unique_combined.bbmap.merged.sam",
-  SV825S_1536_unique_combined        = "out/SV825S_1536_unique_combined.bbmap.merged.sam",
+  SV825S_384_unique_combined         = "out/SV825S_Twist_Unique_384/SV825S_Twist_Unique_384.bbmap.merged.sam",
+  SV825S_1536_unique_combined        = "out/SV825S_Twist_Unique_1536/SV825S_Twist_Unique_1536.bbmap.merged.sam"
 
-  # Deep Sequencing
-  `27BX2S_384_unique_deep`           = "out/27BX2S_384_unique_deep.bbmap.merged.sam",
-  `27BX2S_1536_unique_deep`          = "out/27BX2S_1536_unique_deep.bbmap.merged.sam",
-
-  # AlignFdn Sets------------------------------------------------
-  
-  # 2nd Rnd Assembly (Deep)
-  BKVF4S_AF2_pad                     = "out/BKVF4S_AF-2_342_deep.bbmap.merged.sam",
-  BKVF4S_AF2_noPad                   = "out/BKVF4S_AF-2_342_deep_nPad.bbmap.merged.sam",
-  BKVF4S_AF16_pad                    = "out/BKVF4S_AF-16_1340_deep.bbmap.merged.sam",
-  BKVF4S_AF16_noPad                  = "out/BKVF4S_AF-16_1340_deep_nPad.bbmap.merged.sam",
-  BKVF4S_AF18_pad                    = "out/BKVF4S_AF-18_1340_deep.bbmap.merged.sam",
-  BKVF4S_AF18_noPad                  = "out/BKVF4S_AF-18_1340_deep_nPad.bbmap.merged.sam",
-  BKVF4S_AF20_pad                    = "out/BKVF4S_AF-20_1335_deep.bbmap.merged.sam",
-  BKVF4S_AF20_noPad                  = "out/BKVF4S_AF-20_1335_deep_nPad.bbmap.merged.sam",
-  BKVF4S_AF20_pad_Twist1536ref       = "out/BKVF4S_AF-20_1335_deep.Twist1536ref.bbmap.merged.sam",
-
-  # 4th Rnd Assembly (Shallow)
-  HK6NML_AF2_pad                     = "out/HK6NML_AF-2_342.bbmap.merged.sam",
-  HK6NML_AF2_noPad                   = "out/HK6NML_AF-2_342_nPad.bbmap.merged.sam",
-  HK6NML_AF16_pad                    = "out/HK6NML_AF-16_1340.bbmap.merged.sam",
-  HK6NML_AF16_noPad                  = "out/HK6NML_AF-16_1340_nPad.bbmap.merged.sam",
-  HK6NML_AF18_pad                    = "out/HK6NML_AF-18_1340.bbmap.merged.sam",
-  HK6NML_AF18_noPad                  = "out/HK6NML_AF-18_1340_nPad.bbmap.merged.sam",
-  HK6NML_AF20_pad                    = "out/HK6NML_AF-20_1335.bbmap.merged.sam",
-  HK6NML_AF20_noPad                  = "out/HK6NML_AF-20_1335_nPad.bbmap.merged.sam",
-
-  # Pulse Method (Shallow)
-  DWJW9R_AF18_pad                    = "out/DWJW9R_AF-18_1340_OG_pulse.bbmap.merged.sam",
-  DWJW9R_AF18_noPad                  = "out/DWJW9R_AF-18_1340_OG_pulse_nPad.bbmap.merged.sam",
-  
-  # 4th Rnd Assembly (Deep)
-  XWLXB6_AF2_pad                     = "out/XWLXB6_AF-2_342_4thRnd_deep.bbmap.merged.sam",
-  XWLXB6_AF2_noPad                   = "out/XWLXB6_AF-2_342_4thRnd_deep_nPad.bbmap.merged.sam",
-  XWLXB6_AF16_pad                    = "out/XWLXB6_AF-16_1340_4thRnd_deep.bbmap.merged.sam",
-  XWLXB6_AF16_noPad                  = "out/XWLXB6_AF-16_1340_4thRnd_deep_nPad.bbmap.merged.sam",
-  XWLXB6_AF18_pad                    = "out/XWLXB6_AF-18_1340_4thRnd_deep.bbmap.merged.sam",
-  XWLXB6_AF18_noPad                  = "out/XWLXB6_AF-18_1340_4thRnd_deep_nPad.bbmap.merged.sam",
-  XWLXB6_AF20_pad                    = "out/XWLXB6_AF-20_1335_4thRnd_deep.bbmap.merged.sam",
-  XWLXB6_AF20_noPad                  = "out/XWLXB6_AF-20_1335_4thRnd_deep_nPad.bbmap.merged.sam",
-  
-  # Error Correction---------------------------------------------
-  
-  # Twist Unique EC - 1st Attempt
-  Twist384_errCorr                   = "out/5VCVDJ_Twist_384_error_correct.bbmap.merged.sam",
-  Twist1536_errCorr                  = "out/5VCVDJ_Twist_1536_error_correct.bbmap.merged.sam",
-
-  # Twist Unique EC - 2nd Attempt
-  DF6WP4_Twist384_0.1x_errCorr       = "out/DF6WP4_Twist_384_0.1x_error_correct.bbmap.merged.sam",
-  DF6WP4_Twist384_1x_errCorr         = "out/DF6WP4_Twist_384_1x_error_correct.bbmap.merged.sam",
-  DF6WP4_Twist1536_0.1x_errCorr      = "out/DF6WP4_Twist_1536_0.1x_error_correct.bbmap.merged.sam",
-  DF6WP4_Twist1536_1x_errCorr        = "out/DF6WP4_Twist_1536_1x_error_correct.bbmap.merged.sam",
-
-  # AlignFdn 4th Rnd EC - 1st Attempt
-  LKYW36_AF2_pad                     = "out/LKYW36_AF-2_342_4thRnd_ErrorCorrect.bbmap.merged.sam",
-  LKYW36_AF2_noPad                   = "out/LKYW36_AF-2_342_4thRnd_ErrorCorrect_nPad.bbmap.merged.sam",
-  LKYW36_AF16_pad                    = "out/LKYW36_AF-16_1340_4thRnd_ErrorCorrect.bbmap.merged.sam",
-  LKYW36_AF16_noPad                  = "out/LKYW36_AF-16_1340_4thRnd_ErrorCorrect_nPad.bbmap.merged.sam",
-  LKYW36_AF20_pad                    = "out/LKYW36_AF-20_1335_4thRnd_ErrorCorrect.bbmap.merged.sam",
-  LKYW36_AF20_noPad                  = "out/LKYW36_AF-20_1335_4thRnd_ErrorCorrect_nPad.bbmap.merged.sam",
-  
-  # AlignFdn 4th Rnd EC - 2nd Attempt
-  F4LT8G_AF20_wo_EC_noPad            = "out/F4LT8G_AF-20_1335_R4_wo_ErrorCorrect.minimap.merged.sam",
-  F4LT8G_AF20_w_EC_noPad             = "out/F4LT8G_AF-20_1335_R4_w_ErrorCorrect.minimap.merged.sam",
-  
-  # Cradle Tests------------------------------------------------
-  
-  # CT-Shallow-Rnd1
-  WTZJF9_CT6      = "out/WTZJF9_CT-6_384_deterministic.minimap.merged.sam",
-  GDQPXY_CT7      = "out/GDQPXY_CT-7_384_stochastic.minimap.merged.sam",
-  `5PM5YV_CT9`    = "out/5PM5YV_CT-9_1400_deterministic.minimap.merged.sam",
-  `5PM5YV_CT20`   = "out/5PM5YV_CT-20_1400_stochastic.minimap.merged.sam",
-  
-  # CT-Shallow_Rnd2
-  ZNCGT3_CT7      = "out/ZNCGT3_CT-7_384_stochastic.minimap.merged.sam",
-  ZNCGT3_CT20     = "out/ZNCGT3_CT-20_1400_stochastic.minimap.merged.sam",
-  
-  # CT_Error_Correction
-  K72NPH_CT6_EC   = "out/K72NPH_CT-6_384_deterministic_EC.minimap.merged.sam",
-  K72NPH_CT7_EC   = "out/K72NPH_CT-7_384_stochastic_EC.minimap.merged.sam",
-  
-  # CT-Assembly (OG DS Stochastic) -- Shallow
-  QFKT45_CT7      = "out/QFKT45_CT-7_384_stochastic/QFKT45_CT-7_384_stochastic.minimap.merged.sam",
-  QFKT45_CT20     = "out/QFKT45_CT-20_1400_stochastic/QFKT45_CT-20_1400_stochastic.minimap.merged.sam"
 )
 
 # Helper to see available keys
@@ -428,7 +189,7 @@ list_sam_options <- function() {
 ###------------------------------------------------------------
 
 # --- Select exactly one key to load (change this one line) ---
-SELECT_SAM <- "QFKT45_CT20"
+SELECT_SAM <- "SV825S_1536_unique_combined"
 
 ###------------------------------------------------------------
 

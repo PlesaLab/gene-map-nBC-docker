@@ -1,0 +1,64 @@
+Running BBMap (full FASTA)
+java -ea -Xmx7855m -Xms7855m -cp /opt/conda/envs/newenv/opt/bbmap-39.26-0/current/ align2.BBMap build=1 overwrite=true fastareadlen=500 ref=/workspace/refs/Twist_Unique/unique_overlap_lib384_gene_full_wo_504.fasta in=/workspace/out/SV825S_Twist_Unique_384/SV825S_Twist_Unique_384.fasta outm=/workspace/out/SV825S_Twist_Unique_384/SV825S_Twist_Unique_384.bbmap.merged.sam outu=/workspace/out/SV825S_Twist_Unique_384/SV825S_Twist_Unique_384.bbmap.merged.unaligned.sam
+Executing align2.BBMap [build=1, overwrite=true, fastareadlen=500, ref=/workspace/refs/Twist_Unique/unique_overlap_lib384_gene_full_wo_504.fasta, in=/workspace/out/SV825S_Twist_Unique_384/SV825S_Twist_Unique_384.fasta, outm=/workspace/out/SV825S_Twist_Unique_384/SV825S_Twist_Unique_384.bbmap.merged.sam, outu=/workspace/out/SV825S_Twist_Unique_384/SV825S_Twist_Unique_384.bbmap.merged.unaligned.sam]
+Version 39.26
+
+Retaining first best site only for ambiguous mappings.
+Writing reference.
+Executing dna.FastaToChromArrays2 [/workspace/refs/Twist_Unique/unique_overlap_lib384_gene_full_wo_504.fasta, 1, writeinthread=false, genscaffoldinfo=true, retain, waitforwriting=false, gz=true, maxlen=536670912, writechroms=true, minscaf=1, midpad=300, startpad=8000, stoppad=8000, nodisk=false]
+
+Set genScaffoldInfo=true
+Writing chunk 1
+Set genome to 1
+
+Loaded Reference:	0.030 seconds.
+Loading index for chunk 1-1, build 1
+No index available; generating from reference genome: /workspace/ref/index/1/chr1_index_k13_c13_b1.block
+Indexing threads started for block 0-1
+Indexing threads finished for block 0-1
+Generated Index:	0.575 seconds.
+Analyzed Index:   	1.403 seconds.
+Started output stream:	0.024 seconds.
+Started output stream:	0.002 seconds.
+Cleared Memory:    	0.164 seconds.
+Processing reads in single-ended mode.
+Started read stream.
+Started 10 mapping threads.
+Warning: A fasta header with no sequence was encountered (0):
+CTACATCGTCATCTTTCTTC
+
+Detecting finished threads: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+
+   ------------------   Results   ------------------   
+
+Genome:                	1
+Key Length:            	13
+Max Indel:             	16000
+Minimum Score Ratio:  	0.56
+Mapping Mode:         	normal
+Reads Used:           	7394	(1915920 bases)
+
+Mapping:          	2.976 seconds.
+Reads/sec:       	2484.29
+kBases/sec:      	643.72
+
+
+Read 1 data:      	pct reads	num reads 	pct bases	   num bases
+
+mapped:          	 98.6205% 	     7292 	 98.6142% 	     1889369
+unambiguous:     	 98.6205% 	     7292 	 98.6142% 	     1889369
+ambiguous:       	  0.0000% 	        0 	  0.0000% 	           0
+low-Q discards:  	  0.0000% 	        0 	  0.0000% 	           0
+
+perfect best site:	 38.9099% 	     2877 	 39.0056% 	      747317
+semiperfect site:	 38.9235% 	     2878 	 39.0193% 	      747578
+
+Match Rate:      	      NA 	       NA 	 98.7748% 	     1874060
+Error Rate:      	 60.1526% 	     4414 	  1.2207% 	       23160
+Sub Rate:        	 50.1363% 	     3679 	  0.6198% 	       11760
+Del Rate:        	 26.2061% 	     1923 	  0.4183% 	        7936
+Ins Rate:        	 20.9049% 	     1534 	  0.1826% 	        3464
+N Rate:          	  0.5451% 	       40 	  0.0045% 	          85
+
+Total time:     	5.345 seconds.
+BBMap completed (full FASTA).

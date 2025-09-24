@@ -1,0 +1,13 @@
+Processing barcodes from /workspace/fastq/Twist_Unique/SV825S_1536_unique_combined.fastq
+/opt/conda/envs/newenv/lib/python3.12/site-packages/Bio/Seq.py:2879: BiopythonWarning: Partial codon, len(sequence) not a multiple of three. Explicitly trim the sequence or add trailing N before translation. This may become an error in future.
+  warnings.warn(
+10001 total records
+5268 times tried RC out of 10001
+880 reads failed completely out of 10001
+9120 BCs found out of 10001
+427 no start site out of 9120
+761 no end site out of 8693
+7932 no ambiguous sites out of 7932
+107 no premature stop codons out of 7932
+Wrote: /workspace/out/SV825S_Twist_Unique_1536/SV825S_Twist_Unique_1536.bc_stats.csv, /workspace/out/SV825S_Twist_Unique_1536/SV825S_Twist_Unique_1536.bc_stats_for_starcode.tsv, /workspace/out/SV825S_Twist_Unique_1536/SV825S_Twist_Unique_1536.bc_list.csv, /workspace/out/SV825S_Twist_Unique_1536/SV825S_Twist_Unique_1536.fasta
+Barcode processing complete.

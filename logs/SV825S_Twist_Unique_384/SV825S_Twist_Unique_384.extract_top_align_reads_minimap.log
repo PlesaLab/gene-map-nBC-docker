@@ -1,0 +1,14 @@
+Extracting top aligned reads from minimap2 (full FASTA)
+Total primary mapped reads: 7375
+Wrote counts → /workspace/out/SV825S_Twist_Unique_384/counts/SV825S_Twist_Unique_384.minimap.counts.csv
+Top 4 refs:
+  cp12mer-353;3368;3369;21328;3370;3372;21329;3374;3375;21330;3376;3377 (174 reads)
+  cp12mer-359;3430;3431;21386;3432;3433;21387;3435;3436;21388;3437;3438 (139 reads)
+  cp12mer-270;2561;2562;20512;2563;2564;20513;2565;2566;239964;2567;2568 (138 reads)
+  cp12mer-228;2159;2160;20071;2161;2162;20072;2163;2164;20073;2165;2166 (123 reads)
+Wrote per-ref FASTAs into /workspace/out/SV825S_Twist_Unique_384/read_fasta/SV825S_Twist_Unique_384_minimap:
+  cp12mer-353;3368;3369;21328;3370;3372;21329;3374;3375;21330;3376;3377_reads.fasta: 174 seqs
+  cp12mer-359;3430;3431;21386;3432;3433;21387;3435;3436;21388;3437;3438_reads.fasta: 139 seqs
+  cp12mer-270;2561;2562;20512;2563;2564;20513;2565;2566;239964;2567;2568_reads.fasta: 138 seqs
+  cp12mer-228;2159;2160;20071;2161;2162;20072;2163;2164;20073;2165;2166_reads.fasta: 123 seqs
+Top aligned reads extraction completed (full FASTA).

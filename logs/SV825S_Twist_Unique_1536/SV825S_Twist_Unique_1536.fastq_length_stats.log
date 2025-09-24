@@ -1,0 +1,8 @@
+Calculating FASTQ length stats for: /workspace/fastq/Twist_Unique/SV825S_1536_unique_combined.fastq
+File: /workspace/fastq/Twist_Unique/SV825S_1536_unique_combined.fastq
+Number of reads: 10000
+Mean length:   334.04
+Median length: 341.00
+Min length:    23
+Max length:    1026
+FASTQ length stats complete.
