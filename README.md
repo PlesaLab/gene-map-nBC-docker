@@ -1,17 +1,24 @@
 # DropSynth-Assembled Gene Mapping Pipeline
 
-A reproducible, Docker-based workflow for mapping DropSynth-assembled gene sequences to their reference sequences, orchestrated by a Makefile and configured with sample-specific `.conf` files.
+A reproducible, Docker-based workflow for mapping DropSynth-assembled gene sequences to their reference sequences. The pipeline is orchestrated by a Makefile, parameterized by sample-specific `.conf` files, and runs entirely in a reproducible Docker environment.
+
+---
 
 ## 🔍 Overview
 
-This workflow does the following:
+This pipeline performs:
 
-1. Initializes directory structure for logs and outputs
-2. Extracts and processes barcode sequences from FASTQ input
-3. Aligns sequences to reference genome using BBMap and MiniMap2
-4. Extracts top-aligned reads for downstream analysis
+1. **Setup:** Creates per-sample output folders (`out/<basename>/`) and a matching log folder (`logs/<basename>/`).
+2. **FASTQ QC:** Calculates total read count and length distribution (mean, median, min, max) for the raw FASTQ/FASTQ.GZ.
+3. **Motif Processing:** Extracts and processes sequences using a defined primer motif (optionally splits input into chunks).
+4. **Optional Trimming:** If `TRIM_SEQS := yes` is set in the `.conf`, runs `trim_padding.py` to remove padding between RE sites and writes a `_nPad.fasta`.
+5. **Alignment:** Maps both original and trimmed sequences (if present) to the reference genome using:
 
-The entire workflow is orchestrated through a single `Makefile`, with individual `.conf` files specifying parameters for each assembled library (`fastq.gz`). Designed for reproducibility, the pipeline runs within a Docker environment and processes all input `fastq.gz` files sequentially using the `make all_samples` target—provided each file has a corresponding `.conf` configuration.
+   * **BBMap** (`bbmap.sh`)
+   * **minimap2** (`minimap2`)
+6. **Top Read Extraction:** Extracts top-aligned reads from each alignment result for downstream QC and analysis.
+
+---
 
 ## 🚀 Installation & Setup
 
@@ -22,17 +29,7 @@ git clone git@github.com:PlesaLab/gene-map-nBC-docker.git
 cd gene-map-nBC-docker
 ```
 
-If you prefer HTTPS, use:
-
-```bash
-git clone https://github.com/PlesaLab/gene-map-nBC-docker.git
-cd gene-map-nBC-docker
-```
-
 **2. Build the Docker Image**
-
-> [!NOTE]
-> Ensure [Docker Desktop](https://www.docker.com/products/docker-desktop/) is running in the background (and change default memory to max in Settings)
 
 ```bash
 docker build --no-cache \
@@ -42,22 +39,32 @@ docker build --no-cache \
   -t newenv:arm64 .
 ```
 
-- `--no-cache` forces a clean build
-- `--platform=linux/arm64` specifies native architecture for build (***change as needed***)
-- `--build-arg USER_ID` Adds your user id to the image and updates mambauser to make changes to your mounted volume
-- `--build-arg GROUP_ID` Same as above, but adds mambauser to the same group as well
-- `-t newenv:arm64` tags the image for easy reference
+Key flags:
+
+* `--no-cache`: clean rebuild
+* `--platform`: match your architecture (`linux/arm64` or `linux/amd64`)
+* `USER_ID`/`GROUP_ID`: map container permissions to host user
+* `-t newenv:arm64`: tags the image
+
+---
 
 ## 📦 Data Preparation
 
-> [!NOTE]
-> To run a reproducible example with this pipeline, clone this repository with the included `SV825S_384_unique_combined.fastq` and `SV825S_1536_unique_combined.fastq` **input files** as well as the `SV825S_384_unique_combined.conf` and `SV825S_1536_unique_combined.conf` **configuration files**. This dataset corresponds to the `Twist-Test-Unique-Overlaps` assembled libraries.
+Place your **FASTQ/FASTQ.GZ** files into `fastq/` and their matching `.conf` configuration files into `config/`.
 
-All code lives under `/workspace` inside the container.
+Each `.conf` file controls one run and specifies:
 
-**1. Run Interactively**
+* Input FASTQ
+* Reference genome
+* Barcoding parameters
+* Whether to split into chunks (`CHUNK_FASTQ := no`)
+* Whether to run trimming on sequence padding (`TRIM_SEQS := yes/no`)
 
-To drop into an interactive shell with your `newenv:latest` image (and have your `newenv` conda env auto‑activated), run:
+---
+
+## 💻 Running the Pipeline
+
+Run everything from inside the container for reproducibility:
 
 ```bash
 docker run --rm -it \
@@ -67,51 +74,158 @@ docker run --rm -it \
   bash
 ```
 
-- `--rm`: remove the container when you exit
+Once inside the container:
 
-- `-it`: interactive TTY
-
-- `-v "$(pwd)":/workspace`: mount your current directory into `/workspace` in the container
-
-- `-w /workspace`: set the working directory inside the container
-
-- `newenv:latest`: the image you just built
-
-- `bash`: start a shell (your `newenv` Conda env will be auto‑activated on launch)
-
-Once the `newenv:latest` image is activated, run `make` targets as follows:
-
-***To run a specific FASTQ sample:***
+### (OPTIONAL) Combine multiple `FASTQ` replicate files from same library:
 
 ```bash
-# Twist 384-1536 Unique-Overlaps Test Libraries
-make CONF=Unique_Twist_384-1536/SV825S_384_unique_combined.conf
-make CONF=Unique_Twist_384-1536/SV825S_1536_unique_combined.conf
+# Twist Unique Libraries
+cat fastq/Twist_Unique/replicates/SV825S_1_384-unique1.fastq \
+    fastq/Twist_Unique/replicates/SV825S_2_384-unique2.fastq > \
+    fastq/Twist_Unique/SV825S_384_unique_combined.fastq
+
+cat fastq/Twist_Unique/replicates/SV825S_3_1536-unique1.fastq \
+    fastq/Twist_Unique/replicates/SV825S_4_1536-unique2.fastq > \
+    fastq/Twist_Unique/SV825S_1536_unique_combined.fastq
 ```
 
-***To run all FASTQ samples at the same time:***
+### Map a Specific Sample to its Reference
 
 ```bash
-# Twist 384-1536 Unique-Overlaps Test Libraries
-make CONFIG_SUBDIR=Unique_Twist_384-1536 all_samples
+make CONF=<subdir>/<sample>.conf
 ```
 
-***If you need to combine multiple `FASTQ` replicate files from the same library:***
+### Examples:
 
 ```bash
-# Twist 384-1536 Unique
-cat fastq/Unique_Twist_384-1536/replicates/SV825S_1_384-unique1.fastq \
-    fastq/Unique_Twist_384-1536/replicates/SV825S_2_384-unique2.fastq > \
-    fastq/Unique_Twist_384-1536/SV825S_384_unique_combined.fastq
+# Twist 384 Unique-Overlaps Test Library
+make CONF=Twist_Unique/SV825S_Twist_Unique_384.conf
 
-cat fastq/Unique_Twist_384-1536/replicates/SV825S_3_1536-unique1.fastq \
-    fastq/Unique_Twist_384-1536/replicates/SV825S_4_1536-unique2.fastq > \
-    fastq/Unique_Twist_384-1536/SV825S_1536_unique_combined.fastq
+# Twist 1536 Unique-Overlaps Test Library
+make CONF=Twist_Unique/SV825S_Twist_Unique_1536.conf
 ```
 
-**2. (Optional) Quick-Access Alias**
+You can repeat `make CONF=...` for every dataset you want to process.
 
-Add Alias for Quick-Access to Container
+Each run generates:
+
+* `out/<basename>/...` — per-sample outputs
+* `logs/<basename>/...` — all logs for that sample
+
+### (OPTIONAL) Trim Reference FASTA Files
+
+Trim reference file to remove 50X primers:
+
+- `trim_50X_fasta.py` - standalone python script to remove 50X primers from reference `.fasta` files
+
+```bash
+# Trim 504 primers from Twist 384 Unique-Overlaps reference .fasta
+python scripts/trim_50X_fasta.py refs/lib384_gene_full_with_504.fasta refs/lib384_gene_full_wo_504.fasta
+
+# Trim 504 primers from Twist 1536 Unique-Overlaps reference .fasta
+python scripts/trim_50X_fasta.py refs/lib1536_gene_full_with_504.fasta refs/lib1536_gene_full_wo_504.fasta
+```
+
+---
+
+## 🗂️ Configuration File Format
+
+Example `SV825S_Twist_Unique_384.conf`:
+
+```make
+INPUT_FASTQ   := $(INPUT_DIR)/Twist_Unique/SV825S_384_unique_combined.fastq
+REF_GENOME    := $(REF_DIR)/Twist_Unique/unique_overlap_lib384_gene_full_wo_504.fasta
+PROTEIN_FASTA := 
+
+startsitelength := 12
+barcode_length  := 20
+motif           := ((GATGG)(.)(AACTAACG)){e<2}
+start_site      := TGGTAACTAACG
+end_site        := ACCAACGGACAA
+
+# Toggle FASTQ chunking: yes or no
+# --set to 'no' to skip chunking
+CHUNK_FASTQ := no
+
+# Toggle trimming of recovered sequences to remove padding (yes/no)
+# --set to 'no' to skip trimming
+TRIM_SEQS := no
+```
+
+Key variables:
+
+* `INPUT_FASTQ` – path to input directory (`fastq/`) with raw sequence files
+* `REF_GENOME` – path to reference directory (`refs/`) with reference sequence files
+* `PROTEIN_FASTA` – path to reference directory (`refs/`) with reference protein files
+    - (default: blank)
+* `startsitelength` – number of base pairs in start site sequence 
+* `barcode_length` – number of random nucleotides to add as barcodes to raw sequences
+* `motif` – specifies the `startsite` sequence, `bc`, `endsite` sequence, and allowable errors
+    - ((start_site)(barcode}(end_site)){e<2>}
+* `start_site` - specifies the `start_site` nucleotide sequence
+* `end_site` - specifies the `end_site` nucleotide sequence
+* `CHUNK_FASTQ` - specifies if the raw .fastq.gz should be split into 1GB chunks to extract BCs
+	- yes/no (split input into 1GB chunks)
+* `TRIM_SEQS` - specifies if the raw .fastq.gz sequences have additional sequencing padding that needs to be trimmed
+	- yes/no (enable trimming step)
+
+---
+
+## 🏗️ Makefile Targets
+
+* **prepare** — creates `out/<basename>/` and `logs/<basename>/`
+* **fastq\_length\_stats** — calculates read length stats
+* **process\_barcodes** — extracts barcodes (handles chunking if enabled)
+* **trim\_padding** — runs only if `TRIM_SEQS := yes`
+* **run\_bbmap / run\_minimap** — align reads to reference genome
+  (if trimming enabled: also align `_nPad.fasta` and produce separate outputs)
+* **extract\_top\_align\_reads\_bbmap / minimap** — extract top reads
+  (also runs trimmed equivalents if `TRIM_SEQS := yes`)
+* **all** — runs the entire pipeline for the given `.conf`
+
+---
+
+## 📊 Logs & Outputs
+
+* **Logs:** `logs/<basename>/` contains one `.log` per step (fastq stats, barcode processing, BBMap, minimap2, extraction).
+* **Outputs:** `out/<basename>/` contains FASTAs, SAM files, counts, and extracted read FASTAs.
+
+---
+
+## 📁 Directory Structure
+
+```bash
+├── Dockerfile                    ← default docker settings
+├── newenv.yml                    ← default environment file
+├── Makefile                      ← default Makefile targets
+├── config                        ← default configuration files
+│ ├──<basename>/
+│ ├──── <basename>.conf
+├── fastq/                        ← .fastq.gz-formatted raw sequences
+│ ├──<basename>/
+│ ├──── <basename>.fastq.gz
+├── refs/                         ← .fasta-formatted reference sequences
+│ ├──<basename>/
+│ ├──── <basename>.lib[]_gene_full_wo_504.fasta
+├── scripts/                      ← necessary .py scripts
+│ ├── 1_sam_read.R
+│ ├── barcode_processing.py
+│ ├── extract_top_align_reads.py
+│ ├── fastq_length_stats.py
+│ ├── split_script.py
+│ ├── trim_50X.fasta.py
+```
+
+---
+
+## 🛠️ Tips
+
+* Modify `.conf` files to add new datasets.
+* Set `TRIM_SEQS := yes` for datasets that need padding removal.
+* Inspect `logs/<basename>/` for troubleshooting failed runs.
+* Rebuild the Docker image when dependencies or scripts change.
+
+**(Optional) Quick-Access Docker Alias**
 
 > [!NOTE]
 > The following option is intended for Mac users only
@@ -142,7 +256,7 @@ newenv
 
 6. **With the container running in the `/workspace` directory, run `Make` targets:**
 ```bash
-make all_samples
+make CONF=Unique_Twist_384-1536/27BX2S_384_unique_deep.conf
 ```
 
 7. **To exit the container, run:**
@@ -150,92 +264,7 @@ make all_samples
 exit
 ```
 
-## 📁 Directory Structure
-
-```bash
-├── Dockerfile                    ← default docker settings
-├── newenv.yml                    ← default environment file
-├── Makefile                      ← default Makefile targets
-├── config                        ← default configuration files
-│ ├── [fastq.gz.specific_1].conf
-│ ├── [fastq.gz.specific_2].conf
-│ ├── [fastq.gz.specific_3].conf
-├── fastq/                        ← .fastq.gz-formatted raw sequences
-│ ├── [fastq.gz.specific_1].fastq.gz
-│ ├── [fastq.gz.specific_2].fastq.gz
-│ ├── [fastq.gz.specific_3].fastq.gz
-├── refs/                         ← .fasta-formatted reference sequences
-│ ├── lib[]_gene_full_wo_504.fasta
-│ ├── custom[]_out_split_Lib[].full_nRE_nPrim.genes
-├── scripts/                      ← necessary .py scripts
-│ ├── trim_fasta.py
-│ ├── barcode_processing.py
-│ ├── extract_top_align_reads.py
-```
-
-## 🗂️ Configuration Files
-
-All parameters live in a single `[fastq.gz.specific].conf`.  Key variables include:
-
-- `INPUT_FASTQ` – path to input directory (`fastq/`) with raw sequence files
-- `REF_GENOME` – path to reference directory (`refs/`) with reference sequence files
-- `PROTEIN_FASTA` – path to reference directory (`refs/`) with reference protein files
-    - (default: blank)
-- `startsitelength` – number of base pairs in start site sequence 
-- `barcode_length` – number of random nucleotides to add as barcodes to raw sequences
-- `motif` – specifies the `startsite` sequence, `bc`, `endsite` sequence, and allowable errors
-    - ((start_site)(barcode}(end_site)){e<2>}
-- `start_site` - specifies the `start_site` nucleotide sequence
-- `end_site` - specifies the `end_site` nucleotide sequence
-- `CHUNK_FASTQ` - specifies if the raw .fastq.gz should be split into 1GB chunks to extract BCs
-
-You can duplicate `[fastq.gz.specific].conf` for multiple libraries.
-
-## 🏗️ Makefile Targets
-
-- `prepare` – create log and output directories
-
-- `process_barcodes` – `barcode_processing.py` → Extract BCs from input fastq.gz file
-
-    - (OPTIONS) `split_fastq` - `split_script.py` → Split raw `.fastq.gz` into 1GB chunks
-    - (OPTIONS) `process_barcodes_chunks` - `process_barcodes` → Extract BCs from input chunks
-    - (OPTIONS) `merge_fasta` → Merges `chunk.fasta` into `.fasta` for downstream mapping
-
-- `run_bbmap` – `bbmap.sh` → Align and map extracted sequences to reference sequences (BBMap)
-
-- `run_minimap` – `minimap2` → Align and map extracted sequences to reference sequences (MiniMap2)
-
-- `extract_top_align_reads_bbmap` – `extract_top_align_reads.py` → Extract top aligned reads from BBMap
-
-- `extract_top_align_reads_minimap` – `extract_top_align_reads.py` → Extract top aligned reads from MiniMap2
-
-- `all` – run all targets in sequential order for a specific `[fastq.gz.specific].conf` dataset
-
-- `all_samples` – run all targets in sequential order for all `[fastq.gz.specific].conf` datasets
-
-**OPTIONAL**
-
-- `trim_fasta.py` - standalone python script to remove 504 primers from reference `.fasta` files
-
-```bash
-# Trim 504 primers from 384 reference
-python scripts/trim_fasta.py refs/lib384_gene_full_with_504.fasta refs/lib384_gene_full_wo_504.fasta
-
-# Trim 504 primers from 1536 reference
-python scripts/trim_fasta.py refs/lib1536_gene_full_with_504.fasta refs/lib1536_gene_full_wo_504.fasta
-```
-
-## 📊 Logs & Outputs
-
-- **Logs:** each script writes to `logs/<step>.log`
-- **Results:** look under `out/` for subdirectories by step
-
-## 🛠️ Extending & Troubleshooting
-
-- Modify or clone `[fastq.gz.specific].conf` file for new libraries
-- Edit `Makefile` if you add new scripts or targets
-- Rebuild Docker image (`Dockerfile`) if you change dependencies
-- Inspect `logs/` for errors or exceptions
+---
 
 ## ⚙️ Maintainers
  

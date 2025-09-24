@@ -12,7 +12,7 @@ CONFIG_DIR     := $(PROJ_DIR)/config
 REF_DIR        := $(PROJ_DIR)/refs
 SCRIPT_DIR     := $(PROJ_DIR)/scripts
 OUTPUT_DIR     := $(PROJ_DIR)/out
-LOG_DIR        := $(PROJ_DIR)/logs
+TOP_LOG_DIR    := $(PROJ_DIR)/logs
 
 # Allow targeting a sub-directory under config/
 CONFIG_SUBDIR ?=
@@ -22,80 +22,107 @@ else
   CONFIG_SEARCH_DIR := $(CONFIG_DIR)
 endif
 
-# Define Variables (Do NOT change)
-BC_INFO_FILE   := merged.sorted_noN_aa
-TRANS_FILES    := merged.sorted_noN_aa.csv
-SAM_FILES      := merged.sorted
+# Ensure CONF is set explicitly
+ifndef CONF
+  $(error Set CONF. Usage: make CONF=<subdir>/<config>.conf all)
+endif
+include $(CONFIG_DIR)/$(CONF)
+
+# Default trimming flag if omitted in .conf
+TRIM_SEQS ?= no
+
+#========================================================================
+# Define outputs based on CONF (basename of config file)
+FILEBASE             := $(basename $(notdir $(CONF)))
+
+# Per-config output subdir and per-config logs
+OUTPUT_SUBDIR        := $(OUTPUT_DIR)/$(FILEBASE)
+LOG_DIR              := $(strip $(TOP_LOG_DIR))/$(FILEBASE)
+
+# Outputs in the per-config subdir
+OUTPUT_PREFIX        := $(OUTPUT_SUBDIR)/$(FILEBASE)_chunk_
+PROCESSED_FASTA      := $(OUTPUT_SUBDIR)/$(FILEBASE).fasta
+
+
+# Trimmed (padding-removed) FASTA (only used if TRIM_SEQS=yes)
+TRIM_SCRIPT          := $(SCRIPT_DIR)/trim_padding_alignfdn.py
+TRIMMED_FASTA        := $(OUTPUT_SUBDIR)/$(FILEBASE)_nPad.fasta
+
+# BBMap outputs (full & trimmed)
+BBMAP_OUTPUT         := $(OUTPUT_SUBDIR)/$(FILEBASE).bbmap.merged.sam
+BBMAP_UNALIGNED      := $(OUTPUT_SUBDIR)/$(FILEBASE).bbmap.merged.unaligned.sam
+BBMAP_OUTPUT_TRIM    := $(OUTPUT_SUBDIR)/$(FILEBASE).bbmap.nPad.merged.sam
+BBMAP_UNALIGNED_TRIM := $(OUTPUT_SUBDIR)/$(FILEBASE).bbmap.nPad.merged.unaligned.sam
+
+# minimap2 outputs (full & trimmed)
+MINIMAP_OUTPUT          := $(OUTPUT_SUBDIR)/$(FILEBASE).minimap.merged.sam
+MINIMAP_UNALIGNED       := $(OUTPUT_SUBDIR)/$(FILEBASE).minimap.merged.unaligned.fastq
+MINIMAP_OUTPUT_TRIM     := $(OUTPUT_SUBDIR)/$(FILEBASE).minimap.nPad.merged.sam
+MINIMAP_UNALIGNED_TRIM  := $(OUTPUT_SUBDIR)/$(FILEBASE).minimap.nPad.merged.unaligned.fastq
 
 # Software commands
-PYTHON         := python
-BBMAP          := bbmap.sh
-SAMTOOLS       := samtools
-MINIMAP        := minimap2
+PYTHON               := python
+BBMAP                := bbmap.sh
+SAMTOOLS             := samtools
+MINIMAP              := minimap2
 
 # Python scripts
-BC_PROCESSING       := $(SCRIPT_DIR)/barcode_processing.py
-SPLIT_SCRIPT        := $(SCRIPT_DIR)/split_script.py
-EXTRACT_ALIGN_READS := $(SCRIPT_DIR)/extract_top_align_reads.py
+BC_PROCESSING        := $(SCRIPT_DIR)/barcode_processing.py
+SPLIT_SCRIPT         := $(SCRIPT_DIR)/split_script.py
+EXTRACT_ALIGN_READS  := $(SCRIPT_DIR)/extract_top_align_reads.py
+FASTQ_LENGTH_STATS   := $(SCRIPT_DIR)/fastq_length_stats.py
+
+# Secondary files not deleted
+.SECONDARY: $(PROCESSED_FASTA) $(TRIMMED_FASTA) \
+            $(BBMAP_OUTPUT) $(BBMAP_UNALIGNED) $(BBMAP_OUTPUT_TRIM) $(BBMAP_UNALIGNED_TRIM) \
+            $(MINIMAP_OUTPUT) $(MINIMAP_UNALIGNED) $(MINIMAP_OUTPUT_TRIM) $(MINIMAP_UNALIGNED_TRIM)
 
 # Default target
 .DEFAULT_GOAL := all
 
 #========================================================================
-# Load configs per sample
-CONFIG_FILES := $(wildcard $(CONFIG_SEARCH_DIR)/*.conf)
-
-.PHONY: all_samples
-all_samples:
-	@for cfg in $(CONFIG_FILES); do \
-	  rel=$${cfg#$(CONFIG_DIR)/}; \
-	  echo "===== Processing sample $$rel ====="; \
-	  $(MAKE) CONF=$$rel all; \
-	done
-
-ifneq ($(MAKECMDGOALS),all_samples)
-  ifndef CONF
-    $(error Set CONF. Usage: make CONF=<config>.conf all)
-  endif
-  include $(CONFIG_DIR)/$(CONF)
+# Conditional targets based on TRIM_SEQS
+ifeq ($(TRIM_SEQS),yes)
+  PRE_ALIGN_TRIM          := trim_padding
+  EXTRA_ALIGN_TARGETS     := run_bbmap_trimmed run_minimap_trimmed
+  EXTRA_EXTRACT_TARGETS   := extract_top_align_reads_bbmap_trimmed extract_top_align_reads_minimap_trimmed
+else
+  PRE_ALIGN_TRIM          :=
+  EXTRA_ALIGN_TARGETS     :=
+  EXTRA_EXTRACT_TARGETS   :=
 endif
 
 #========================================================================
-# Define outputs based on INPUT_FASTQ from .conf
-#FILEBASE			:= $(basename $(basename $(notdir $(INPUT_FASTQ))))
-FILEBASE 			:= $(basename $(notdir $(CONF)))
-OUTPUT_PREFIX		:= $(OUTPUT_DIR)/$(FILEBASE)_chunk_
-PROCESSED_FASTA		:= $(OUTPUT_DIR)/$(FILEBASE).fasta
-BBMAP_OUTPUT		:= $(OUTPUT_DIR)/$(FILEBASE).bbmap.merged.sam
-BBMAP_UNALIGNED		:= $(OUTPUT_DIR)/$(FILEBASE).bbmap.merged.unaligned.sam
-MINIMAP_OUTPUT		:= $(OUTPUT_DIR)/$(FILEBASE).minimap.merged.sam
-MINIMAP_UNALIGNED	:= $(OUTPUT_DIR)/$(FILEBASE).minimap.merged.unaligned.fastq
-
-# Secondary files not deleted
-.SECONDARY: $(PROCESSED_FASTA) $(BBMAP_OUTPUT) $(BBMAP_UNALIGNED) $(MINIMAP_OUTPUT) $(MINIMAP_UNALIGNED)
-#========================================================================
 # Primary workflow
-all: prepare process_barcodes run_bbmap extract_top_align_reads_bbmap
-# all: prepare process_barcodes run_bbmap run_minimap extract_top_align_reads_bbmap extract_top_align_reads_minimap
+all: prepare fastq_length_stats process_barcodes $(PRE_ALIGN_TRIM) run_bbmap $(EXTRA_ALIGN_TARGETS) run_minimap extract_top_align_reads_bbmap extract_top_align_reads_minimap $(EXTRA_EXTRACT_TARGETS)
 
-.PHONY: all prepare split_fastq process_barcodes_chunks merge_fasta process_barcodes run_bbmap extract_top_align_reads_bbmap
-# .PHONY: all prepare split_fastq process_barcodes_chunks merge_fasta process_barcodes run_bbmap run_minimap extract_top_align_reads_bbmap extract_top_align_reads_minimap
+.PHONY: all prepare fastq_length_stats trim_padding \
+        split_fastq process_barcodes_chunks merge_fasta process_barcodes \
+        run_bbmap run_bbmap_full run_bbmap_trimmed \
+        run_minimap run_minimap_full run_minimap_trimmed \
+        extract_top_align_reads_bbmap extract_top_align_reads_minimap \
+        extract_top_align_reads_bbmap_trimmed extract_top_align_reads_minimap_trimmed
 
 #========================================================================
 # STEP 1: Prep directories
 prepare:
-	mkdir -p $(OUTPUT_DIR) $(LOG_DIR) $(OUTPUT_DIR)/counts $(OUTPUT_DIR)/read_fasta $(PROJ_DIR)/RMD
+	mkdir -p $(OUTPUT_SUBDIR) $(LOG_DIR) $(OUTPUT_SUBDIR)/counts $(OUTPUT_SUBDIR)/read_fasta $(PROJ_DIR)/RMD
+
+#========================================================================
+# STEP 1.5: Basic length stats on raw FASTQ/FASTQ.GZ
+fastq_length_stats: prepare
+	@echo "Calculating FASTQ length stats for: $(INPUT_FASTQ)" | tee -a $(LOG_DIR)/$(FILEBASE).fastq_length_stats.log
+	@$(PYTHON) $(FASTQ_LENGTH_STATS) "$(INPUT_FASTQ)" 2>&1 | tee -a $(LOG_DIR)/$(FILEBASE).fastq_length_stats.log
+	@echo "FASTQ length stats complete." | tee -a $(LOG_DIR)/$(FILEBASE).fastq_length_stats.log
 
 #========================================================================
 # STEP 2: Barcode processing (chunked or single-file)
 ifeq ($(CHUNK_FASTQ),yes)
 
-# 2A: Split FASTQ
 split_fastq: prepare
 	@echo "Splitting FASTQ: $(INPUT_FASTQ)"
 	@$(PYTHON) $(SPLIT_SCRIPT) $(INPUT_FASTQ) $(OUTPUT_PREFIX)
 
-# 2B: Process barcodes on each chunk
 process_barcodes_chunks: split_fastq
 	@echo "Processing barcodes on chunked FASTQ"
 	@for fq in $(OUTPUT_PREFIX)*.gz; do \
@@ -109,17 +136,14 @@ process_barcodes_chunks: split_fastq
 		  "$$fq" "$${fq%.gz}" 2>&1 | tee -a $(LOG_DIR)/$$(basename $${fq%.gz}).bc_processing.log || exit 1; \
 	done
 
-# 2C: Merge FASTAs
 merge_fasta: process_barcodes_chunks
 	@echo "Merging FASTA chunks into $(PROCESSED_FASTA)"
 	@cat $(OUTPUT_PREFIX)*.fasta > $(PROCESSED_FASTA)
 
-# Master process_barcodes for chunked
 process_barcodes: merge_fasta
 	@echo "Barcode processing complete for all chunks"
 
 else
-# Single-file processing
 process_barcodes: prepare
 	@echo "Processing barcodes from $(INPUT_FASTQ)" | tee -a $(LOG_DIR)/$(FILEBASE).bc_processing.log
 	@$(PYTHON) $(BC_PROCESSING) \
@@ -128,35 +152,65 @@ process_barcodes: prepare
 	  --motif           "$(motif)" \
 	  --start_site      "$(start_site)" \
 	  --end_site        "$(end_site)" \
-	  "$(INPUT_FASTQ)" "$(OUTPUT_DIR)/$(FILEBASE)" 2>&1 | tee -a $(LOG_DIR)/$(FILEBASE).bc_processing.log || exit 1
+	  "$(INPUT_FASTQ)" "$(OUTPUT_SUBDIR)/$(FILEBASE)" 2>&1 | tee -a $(LOG_DIR)/$(FILEBASE).bc_processing.log || exit 1
 	@echo "Barcode processing complete." | tee -a $(LOG_DIR)/$(FILEBASE).bc_processing.log
 endif
 
 #========================================================================
-# STEP 3: BBMap
-run_bbmap: process_barcodes
-	@echo "Running BBMap" | tee -a $(LOG_DIR)/$(FILEBASE).bbmap.log
-	@$(BBMAP) ref=$(REF_GENOME) in=$(PROCESSED_FASTA) outm=$(BBMAP_OUTPUT) outu=$(BBMAP_UNALIGNED) 2>&1 | tee -a $(LOG_DIR)/$(FILEBASE).bbmap.log
-	@echo "BBMap completed." | tee -a $(LOG_DIR)/$(FILEBASE).bbmap.log
+# STEP 2.5: Trim padding from recovered sequences (only if TRIM_SEQS=yes)
+trim_padding:
+	@echo "Trimming padding (if present) from $(PROCESSED_FASTA)" | tee -a $(LOG_DIR)/$(FILEBASE).trim_padding.log
+	@$(PYTHON) $(TRIM_SCRIPT) "$(PROCESSED_FASTA)" "$(TRIMMED_FASTA)" 2>&1 | tee -a $(LOG_DIR)/$(FILEBASE).trim_padding.log
+	@echo "Trimmed FASTA written to: $(TRIMMED_FASTA)" | tee -a $(LOG_DIR)/$(FILEBASE).trim_padding.log
 
 #========================================================================
-# STEP 4: minimap2
-run_minimap: process_barcodes
-	@echo "Running MiniMap" | tee -a $(LOG_DIR)/$(FILEBASE).minimap.log
-	@$(MINIMAP) -ax map-ont --secondary=no -o $(MINIMAP_OUTPUT) $(REF_GENOME) $(PROCESSED_FASTA) 2>&1 | tee -a $(LOG_DIR)/$(FILEBASE).minimap.log
-	@echo "Extracting unmapped reads" | tee -a $(LOG_DIR)/$(FILEBASE).minimap.log
-	@{ awk 'BEGIN{FS="	"} /^@SQ/ { if (!seen[$$2]++) print; next } /^@/ { print; next } { print }' $(MINIMAP_OUTPUT) | $(SAMTOOLS) fastq -f 4 - > $(MINIMAP_UNALIGNED); } 2>&1 | tee -a $(LOG_DIR)/$(FILEBASE).minimap.log
-	@echo "minimap2 completed." | tee -a $(LOG_DIR)/$(FILEBASE).minimap.log
+# STEP 3: BBMap (always run on FULL; add TRIMMED when TRIM_SEQS=yes)
+run_bbmap: run_bbmap_full
+
+run_bbmap_full: process_barcodes
+	@echo "Running BBMap (full FASTA)" | tee -a $(LOG_DIR)/$(FILEBASE).bbmap.full.log
+	@$(BBMAP) ref=$(REF_GENOME) in=$(PROCESSED_FASTA) outm=$(BBMAP_OUTPUT) outu=$(BBMAP_UNALIGNED) 2>&1 | tee -a $(LOG_DIR)/$(FILEBASE).bbmap.full.log
+	@echo "BBMap completed (full FASTA)." | tee -a $(LOG_DIR)/$(FILEBASE).bbmap.full.log
+
+run_bbmap_trimmed: trim_padding
+	@echo "Running BBMap (trimmed FASTA)" | tee -a $(LOG_DIR)/$(FILEBASE).bbmap.trimmed.log
+	@$(BBMAP) ref=$(REF_GENOME) in=$(TRIMMED_FASTA) outm=$(BBMAP_OUTPUT_TRIM) outu=$(BBMAP_UNALIGNED_TRIM) 2>&1 | tee -a $(LOG_DIR)/$(FILEBASE).bbmap.trimmed.log
+	@echo "BBMap completed (trimmed FASTA)." | tee -a $(LOG_DIR)/$(FILEBASE).bbmap.trimmed.log
 
 #========================================================================
-# STEP 5: Extract reads BBMap
+# STEP 4: minimap2 (always run on FULL; add TRIMMED when TRIM_SEQS=yes)
+run_minimap: run_minimap_full
+
+run_minimap_full: process_barcodes
+	@echo "Running minimap2 (full FASTA)" | tee -a $(LOG_DIR)/$(FILEBASE).minimap.full.log
+	@$(MINIMAP) -ax map-ont --secondary=no -o $(MINIMAP_OUTPUT) $(REF_GENOME) $(PROCESSED_FASTA) 2>&1 | tee -a $(LOG_DIR)/$(FILEBASE).minimap.full.log
+	@echo "Extracting unmapped reads (full FASTA)" | tee -a $(LOG_DIR)/$(FILEBASE).minimap.full.log
+	@{ awk 'BEGIN{FS="	"} /^@SQ/ { if (!seen[$$2]++) print; next } /^@/ { print; next } { print }' $(MINIMAP_OUTPUT) | $(SAMTOOLS) fastq -f 4 - > $(MINIMAP_UNALIGNED); } 2>&1 | tee -a $(LOG_DIR)/$(FILEBASE).minimap.full.log
+	@echo "minimap2 completed (full FASTA)." | tee -a $(LOG_DIR)/$(FILEBASE).minimap.full.log
+
+run_minimap_trimmed: trim_padding
+	@echo "Running minimap2 (trimmed FASTA)" | tee -a $(LOG_DIR)/$(FILEBASE).minimap.trimmed.log
+	@$(MINIMAP) -ax map-ont --secondary=no -o $(MINIMAP_OUTPUT_TRIM) $(REF_GENOME) $(TRIMMED_FASTA) 2>&1 | tee -a $(LOG_DIR)/$(FILEBASE).minimap.trimmed.log
+	@echo "Extracting unmapped reads (trimmed FASTA)" | tee -a $(LOG_DIR)/$(FILEBASE).minimap.trimmed.log
+	@{ awk 'BEGIN{FS="	"} /^@SQ/ { if (!seen[$$2]++) print; next } /^@/ { print; next } { print }' $(MINIMAP_OUTPUT_TRIM) | $(SAMTOOLS) fastq -f 4 - > $(MINIMAP_UNALIGNED_TRIM); } 2>&1 | tee -a $(LOG_DIR)/$(FILEBASE).minimap.trimmed.log
+	@echo "minimap2 completed (trimmed FASTA)." | tee -a $(LOG_DIR)/$(FILEBASE).minimap.trimmed.log
+
+#========================================================================
+# STEP 5: Extract reads (full + trimmed if enabled)
 extract_top_align_reads_bbmap: run_bbmap
-	@echo "Extracting top aligned reads from BBMap" | tee -a $(LOG_DIR)/$(FILEBASE).extract_top_align_reads_bbmap.log
-	@$(PYTHON) $(EXTRACT_ALIGN_READS) -s "$(BBMAP_OUTPUT)" -f "$(PROCESSED_FASTA)" -c "$(OUTPUT_DIR)/counts/$(FILEBASE).bbmap.counts.csv" -o "$(OUTPUT_DIR)/read_fasta/$(FILEBASE)_bbmap" -t 4 2>&1 | tee -a $(LOG_DIR)/$(FILEBASE).extract_top_align_reads_bbmap.log
+	@echo "Extracting top aligned reads from BBMap (full FASTA)" | tee -a $(LOG_DIR)/$(FILEBASE).extract_top_align_reads_bbmap.log
+	@$(PYTHON) $(EXTRACT_ALIGN_READS) -s "$(BBMAP_OUTPUT)" -f "$(PROCESSED_FASTA)" -c "$(OUTPUT_SUBDIR)/counts/$(FILEBASE).bbmap.counts.csv" -o "$(OUTPUT_SUBDIR)/read_fasta/$(FILEBASE)_bbmap" -t 4 2>&1 | tee -a $(LOG_DIR)/$(FILEBASE).extract_top_align_reads_bbmap.log
 
-#========================================================================
-# STEP 6: Extract reads MiniMap
 extract_top_align_reads_minimap: run_minimap
-	@echo "Extracting top aligned reads from MiniMap" | tee -a $(LOG_DIR)/$(FILEBASE).extract_top_align_reads_minimap.log
-	@$(PYTHON) $(EXTRACT_ALIGN_READS) -s "$(MINIMAP_OUTPUT)" -f "$(PROCESSED_FASTA)" -c "$(OUTPUT_DIR)/counts/$(FILEBASE).minimap.counts.csv" -o "$(OUTPUT_DIR)/read_fasta/$(FILEBASE)_minimap" -t 4 2>&1 | tee -a $(LOG_DIR)/$(FILEBASE).extract_top_align_reads_minimap.log
-	@echo "Top aligned reads extraction completed." | tee -a $(LOG_DIR)/$(FILEBASE).extract_top_align_reads_minimap.log
+	@echo "Extracting top aligned reads from minimap2 (full FASTA)" | tee -a $(LOG_DIR)/$(FILEBASE).extract_top_align_reads_minimap.log
+	@$(PYTHON) $(EXTRACT_ALIGN_READS) -s "$(MINIMAP_OUTPUT)" -f "$(PROCESSED_FASTA)" -c "$(OUTPUT_SUBDIR)/counts/$(FILEBASE).minimap.counts.csv" -o "$(OUTPUT_SUBDIR)/read_fasta/$(FILEBASE)_minimap" -t 4 2>&1 | tee -a $(LOG_DIR)/$(FILEBASE).extract_top_align_reads_minimap.log
+	@echo "Top aligned reads extraction completed (full FASTA)." | tee -a $(LOG_DIR)/$(FILEBASE).extract_top_align_reads_minimap.log
+
+extract_top_align_reads_bbmap_trimmed: run_bbmap_trimmed
+	@echo "Extracting top aligned reads from BBMap (trimmed FASTA)" | tee -a $(LOG_DIR)/$(FILEBASE).extract_top_align_reads_bbmap_nPad.log
+	@$(PYTHON) $(EXTRACT_ALIGN_READS) -s "$(BBMAP_OUTPUT_TRIM)" -f "$(TRIMMED_FASTA)" -c "$(OUTPUT_SUBDIR)/counts/$(FILEBASE).bbmap.nPad.counts.csv" -o "$(OUTPUT_SUBDIR)/read_fasta/$(FILEBASE)_bbmap_nPad" -t 4 2>&1 | tee -a $(LOG_DIR)/$(FILEBASE).extract_top_align_reads_bbmap_nPad.log
+
+extract_top_align_reads_minimap_trimmed: run_minimap_trimmed
+	@echo "Extracting top aligned reads from minimap2 (trimmed FASTA)" | tee -a $(LOG_DIR)/$(FILEBASE).extract_top_align_reads_minimap_nPad.log
+	@$(PYTHON) $(EXTRACT_ALIGN_READS) -s "$(MINIMAP_OUTPUT_TRIM)" -f "$(TRIMMED_FASTA)" -c "$(OUTPUT_SUBDIR)/counts/$(FILEBASE).minimap.nPad.counts.csv" -o "$(OUTPUT_SUBDIR)/read_fasta/$(FILEBASE)_minimap_nPad" -t 4 2>&1 | tee -a $(LOG_DIR)/$(FILEBASE).extract_top_align_reads_minimap_nPad.log
+	@echo "Top aligned reads extraction completed (trimmed FASTA)." | tee -a $(LOG_DIR)/$(FILEBASE).extract_top_align_reads_minimap_nPad.log
